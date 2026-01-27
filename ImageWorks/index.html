@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Micro Tools Studio - Home</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge"><i class="bi bi-stars"></i></div>
+        <div>
+          <h1>Micro Tools Studio</h1>
+          <p>Minimal UI • Beginner friendly</p>
+        </div>
+      </div>
+
+      <div class="nav-title">Tools</div>
+      <div class="tool-list">
+        <a class="tool-item active" href="index.html">
+          <div class="tool-icon"><i class="bi bi-grid-1x2"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Dashboard</p>
+            <p class="tool-desc">Quick access to all tools</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-prompt-to-image.html">
+          <div class="tool-icon"><i class="bi bi-magic"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Prompt → Image</p>
+            <p class="tool-desc">Text prompt to image</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-image-to-style.html">
+          <div class="tool-icon"><i class="bi bi-palette2"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Image → Style</p>
+            <p class="tool-desc">Apply a style to an image</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-specs-tryon.html">
+          <div class="tool-icon"><i class="bi bi-eyeglasses"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Specs Try-On</p>
+            <p class="tool-desc">Face + Specs overlay</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-haircut-preview.html">
+          <div class="tool-icon"><i class="bi bi-scissors"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Haircut Preview</p>
+            <p class="tool-desc">Face + Hair style sample</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-insta-post-generator.html">
+          <div class="tool-icon"><i class="bi bi-plus-square"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Insta Post Generator</p>
+            <p class="tool-desc">Ready Insta Post</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-insta-story-template.html">
+          <div class="tool-icon"><i class="bi bi-phone"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Insta Story Template</p>
+            <p class="tool-desc">Get Insta Story</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-healthy-poster-analayser.html">
+          <div class="tool-icon"><i class="bi bi-person-check"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Healthy-Poster-Analayser</p>
+            <p class="tool-desc">AI health tracking</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-safety-gear.html">
+          <div class="tool-icon"><i class="bi bi-shield-check"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Safety Gear Try-On</p>
+            <p class="tool-desc">Get Safety Gear Try</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-story-image-generater.html">
+          <div class="tool-icon"><i class="bi bi-journal-richtext"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Story-Image Generater</p>
+            <p class="tool-desc">Get story in image</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="history.html">
+          <div class="tool-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">History</p>
+            <p class="tool-desc">All previous requests</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-title">Tip</div>
+      <div class="hint px-2">Build backend later: just make forms work first.</div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <p class="page-title">Dashboard</p>
+          <p class="page-subtitle">Choose a micro tool from the sidebar.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-elegant" href="history.html"><i class="bi bi-clock-history me-1"></i>History</a>
+          <a class="btn btn-primary btn-primary-elegant" href="tool-prompt-to-image.html">
+            <i class="bi bi-play-fill me-1"></i>Start
+          </a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="bi bi-lightning-charge me-2"></i>Quick Start</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row g-4">
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--accent-dashboard);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Prompt → Image</h5>
+                <p class="hint m-0">Type a prompt and generate an image.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-prompt-to-image.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--c-style);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Image → Style</h5>
+                <p class="hint m-0">Upload image and choose a style.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-image-to-style.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--c-tryon);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Specs Try-On</h5>
+                <p class="hint m-0">Upload face and specs image.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-specs-tryon.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--c-hair);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Haircut Preview</h5>
+                <p class="hint m-0">Upload face and haircut sample.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-haircut-preview.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--accent-insta);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Insta Post Generator</h5>
+                <p class="hint m-0">Give prompt take Ready Insta Post.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-insta-post-generator.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--accent-story);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Insta Story Template</h5>
+                <p class="hint m-0">Take the Insta Story template.</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-insta-Story-Template.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--accent-posture );">
+                <h5 style="font-size:14px;margin:0 0 8px;">Healthy Posture Analayser</h5>
+                <p class="hint m-0">Take the Analyse of Healthy Poster</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-healthy-poster-analayser.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--accent-safety);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Safety Gear Try On</h5>
+                <p class="hint m-0">Take The Safety Gear Try</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-safety-gear.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-40">
+              <div class="preview-box card-3d" style="border-top: 4px solid var(--c-story);">
+                <h5 style="font-size:14px;margin:0 0 8px;">Story image Generator</h5>
+                <p class="hint m-0">Generate Image For your Story</p>
+                <div class="mt-3">
+                  <a class="btn btn-primary btn-primary-elegant w-100" href="tool-story-image-generater.html">Open Tool</a>
+                </div>
+              </div>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

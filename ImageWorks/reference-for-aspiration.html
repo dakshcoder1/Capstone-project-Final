@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Micro Tools Studio</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* -----------------------------
+      Minimal, elegant theme
+    ------------------------------ */
+    :root{
+      --bg: #0b0f14;
+      --panel: rgba(255,255,255,.04);
+      --panel-2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.10);
+      --border-2: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.88);
+      --muted: rgba(255,255,255,.60);
+      --muted-2: rgba(255,255,255,.45);
+      --brand: #7c5cff;
+      --brand-2: #22c55e;
+      --warn: #f59e0b;
+
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,.22);
+
+      --ring: 0 0 0 .22rem rgba(124, 92, 255, .20);
+      --ring-2: 0 0 0 .22rem rgba(34, 197, 94, .18);
+    }
+
+    html,body{height:100%;}
+    body{
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(124,92,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 85% 0%, rgba(34,197,94,.10), transparent 55%),
+        radial-gradient(1000px 700px at 75% 90%, rgba(245,158,11,.08), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-feature-settings: "ss01" 1,"ss02" 1,"cv05" 1;
+    }
+
+    /* Layout */
+    .app-shell{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 18px;
+      border-right: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow-soft);
+    }
+    .brand-badge{
+      width:42px; height:42px;
+      display:grid; place-items:center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(124,92,255,.38), rgba(34,197,94,.22));
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .brand h1{
+      font-size: 14px;
+      margin: 0;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .sidebar .nav-section-title{
+      margin: 16px 6px 8px;
+      font-size: 11px;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
+
+    .tool-list{
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .tool-item{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      transition: all .18s ease;
+      user-select: none;
+    }
+    .tool-item:hover{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(255,255,255,.08);
+    }
+    .tool-item.active{
+      background: linear-gradient(135deg, rgba(124,92,255,.18), rgba(34,197,94,.10));
+      border-color: rgba(124,92,255,.28);
+      box-shadow: 0 0 0 1px rgba(124,92,255,.12) inset;
+    }
+    .tool-icon{
+      width: 36px; height: 36px;
+      display:grid; place-items:center;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.82);
+      flex: 0 0 auto;
+    }
+    .tool-meta{
+      display:flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .tool-name{
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .tool-desc{
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    /* Main */
+    .main{
+      padding: 22px;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-soft);
+    }
+    .crumb{
+      display:flex; flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .crumb .title{
+      font-size: 15px;
+      margin: 0;
+      letter-spacing: .2px;
+    }
+    .crumb .subtitle{
+      font-size: 12px;
+      margin: 0;
+      color: var(--muted);
+    }
+    .top-actions{
+      display:flex; gap: 10px; align-items:center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* Buttons */
+    .btn-elegant{
+      border-radius: 14px !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      background: rgba(255,255,255,.05) !important;
+      color: var(--text) !important;
+      padding: 10px 12px !important;
+      transition: all .18s ease;
+    }
+    .btn-elegant:hover{
+      background: rgba(255,255,255,.08) !important;
+      transform: translateY(-1px);
+    }
+    .btn-primary-elegant{
+      border-radius: 14px !important;
+      border: 1px solid rgba(124,92,255,.35) !important;
+      background: linear-gradient(135deg, rgba(124,92,255,.85), rgba(124,92,255,.65)) !important;
+      box-shadow: 0 10px 26px rgba(124,92,255,.16);
+      padding: 10px 14px !important;
+    }
+    .btn-primary-elegant:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(124,92,255,.22);
+    }
+    .btn-success-elegant{
+      border-radius: 14px !important;
+      border: 1px solid rgba(34,197,94,.35) !important;
+      background: linear-gradient(135deg, rgba(34,197,94,.85), rgba(34,197,94,.62)) !important;
+      box-shadow: 0 10px 26px rgba(34,197,94,.14);
+      padding: 10px 14px !important;
+    }
+
+    /* Content Panels */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .panel{
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+    .panel-header{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display:flex; align-items:center; justify-content: space-between;
+      gap: 10px;
+    }
+    .panel-header h3{
+      font-size: 13px;
+      margin: 0;
+      color: rgba(255,255,255,.84);
+      letter-spacing: .2px;
+    }
+    .panel-body{
+      padding: 16px;
+    }
+
+    /* Inputs */
+    .form-label{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .form-control, .form-select{
+      border-radius: 14px !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      background: rgba(0,0,0,.18) !important;
+      color: var(--text) !important;
+      padding: 11px 12px !important;
+    }
+    .form-control::placeholder{
+      color: rgba(255,255,255,.35);
+    }
+    .form-control:focus, .form-select:focus{
+      box-shadow: var(--ring) !important;
+      border-color: rgba(124,92,255,.45) !important;
+    }
+
+    .hint{
+      font-size: 12px;
+      color: var(--muted-2);
+      margin-top: 6px;
+    }
+
+    /* Dropzone */
+    .dropzone{
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.02);
+      padding: 14px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .dropzone strong{
+      font-size: 12px;
+      display:block;
+      margin-bottom: 2px;
+    }
+    .dropzone small{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Preview Card */
+    .preview{
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.02);
+      padding: 14px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .preview .thumb{
+      height: 210px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(600px 240px at 20% 10%, rgba(124,92,255,.18), transparent 60%),
+        radial-gradient(500px 220px at 80% 40%, rgba(34,197,94,.12), transparent 60%),
+        rgba(255,255,255,.03);
+      display:grid;
+      place-items:center;
+      color: rgba(255,255,255,.55);
+      overflow:hidden;
+    }
+    .preview img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:none;
+    }
+
+    /* Badges */
+    .chip{
+      font-size: 11px;
+      color: rgba(255,255,255,.80);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      user-select: none;
+    }
+    .chip i{opacity:.9;}
+
+    /* History */
+    .history-wrap{
+      margin-top: 16px;
+      display:none;
+    }
+    .history-filters{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .history-list{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .history-card{
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.03);
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+    }
+    .history-card .row1{
+      display:flex; align-items:center; justify-content: space-between; gap: 10px;
+    }
+    .history-card h4{
+      font-size: 13px;
+      margin: 0;
+    }
+    .history-card p{
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .kvs{
+      display:flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 10px;
+    }
+    .kv{
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding: 8px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: rgba(255,255,255,.80);
+    }
+    .kv span{ color: var(--muted-2); margin-right: 6px; }
+
+    /* Responsive */
+    @media (max-width: 992px){
+      .app-shell{ grid-template-columns: 1fr; }
+      .sidebar{
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .grid{ grid-template-columns: 1fr; }
+      .tool-desc{ max-width: 100%; }
+      .history-list{ grid-template-columns: 1fr; }
+    }
+
+    /* Subtle separators */
+    .divider{
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 12px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="mb-0">Micro Tools Studio</h1>
+          <p class="mb-0">Minimal UI • Fast workflows</p>
+        </div>
+      </div>
+
+      <div class="nav-section-title">Tools</div>
+      <div class="tool-list" id="toolList">
+        <a href="#" class="tool-item active" data-tool="txt2img">
+          <div class="tool-icon"><i class="bi bi-magic"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Prompt → Image</p>
+            <p class="tool-desc">Generate an image from text prompt</p>
+          </div>
+        </a>
+
+        <a href="#" class="tool-item" data-tool="style">
+          <div class="tool-icon"><i class="bi bi-palette2"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Image → Styles</p>
+            <p class="tool-desc">Apply multiple styles on one image</p>
+          </div>
+        </a>
+
+        <a href="#" class="tool-item" data-tool="tryon">
+          <div class="tool-icon"><i class="bi bi-eyeglasses"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Specs Try-On</p>
+            <p class="tool-desc">Face + specs image → preview</p>
+          </div>
+        </a>
+
+        <a href="#" class="tool-item" data-tool="hair">
+          <div class="tool-icon"><i class="bi bi-scissors"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Haircut Preview</p>
+            <p class="tool-desc">Face + hairstyle sample → result</p>
+          </div>
+        </a>
+
+        <div class="divider"></div>
+
+        <a href="#" class="tool-item" data-tool="history">
+          <div class="tool-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">History</p>
+            <p class="tool-desc">See all previous requests</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-section-title">Quick tips</div>
+      <div class="p-2">
+        <div class="chip mb-2"><i class="bi bi-lightning-charge"></i> Keep prompts short & clear</div><br/>
+        <div class="chip mb-2"><i class="bi bi-image"></i> Use high-res face images</div><br/>
+        <div class="chip"><i class="bi bi-shield-check"></i> Don’t upload sensitive content</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="crumb">
+          <p class="title" id="pageTitle">Prompt → Image</p>
+          <p class="subtitle" id="pageSubtitle">Generate images from a prompt with style controls.</p>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-elegant" id="btnHistory">
+            <i class="bi bi-clock-history me-1"></i> History
+          </button>
+          <button class="btn btn-elegant" id="btnClear">
+            <i class="bi bi-trash3 me-1"></i> Clear
+          </button>
+          <button class="btn btn-primary btn-primary-elegant" id="btnRun">
+            <i class="bi bi-play-fill me-1"></i> Run
+          </button>
+        </div>
+      </div>
+
+      <!-- TOOL VIEW -->
+      <section class="grid" id="toolView">
+
+        <!-- Left: Form -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="bi bi-sliders me-2"></i>Inputs</h3>
+            <span class="chip"><i class="bi bi-cpu"></i> Demo UI</span>
+          </div>
+          <div class="panel-body" id="dynamicForm">
+            <!-- Dynamic form injected by JS -->
+          </div>
+        </div>
+
+        <!-- Right: Preview -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="bi bi-image me-2"></i>Preview</h3>
+            <span class="chip"><i class="bi bi-stars"></i> Result</span>
+          </div>
+          <div class="panel-body">
+            <div class="preview">
+              <div class="thumb" id="previewThumb">
+                <img id="previewImg" alt="preview"/>
+                <div id="previewPlaceholder" class="text-center px-3">
+                  <div class="mb-1"><i class="bi bi-image" style="font-size:28px;"></i></div>
+                  <div style="font-size:12px;color:rgba(255,255,255,.60);">
+                    Your uploaded image / generated result will appear here.
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2">
+                <span class="chip"><i class="bi bi-aspect-ratio"></i> 1024×1024</span>
+                <span class="chip"><i class="bi bi-brush"></i> Clean</span>
+                <span class="chip"><i class="bi bi-speedometer2"></i> Fast</span>
+              </div>
+
+              <div class="hint">
+                This is UI template only. Hook your API calls inside <code>runTool()</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- HISTORY VIEW -->
+      <section class="history-wrap" id="historyView">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="bi bi-clock-history me-2"></i>History</h3>
+            <div class="history-filters">
+              <input id="historySearch" class="form-control" style="min-width:240px" placeholder="Search history…">
+              <select id="historyFilter" class="form-select" style="min-width:200px">
+                <option value="all" selected>All tools</option>
+                <option value="txt2img">Prompt → Image</option>
+                <option value="style">Image → Styles</option>
+                <option value="tryon">Specs Try-On</option>
+                <option value="hair">Haircut Preview</option>
+              </select>
+              <button class="btn btn-elegant" id="btnSeed">
+                <i class="bi bi-plus-circle me-1"></i> Add Demo Items
+              </button>
+              <button class="btn btn-elegant" id="btnClearHistory">
+                <i class="bi bi-trash3 me-1"></i> Clear History
+              </button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="history-list" id="historyList"></div>
+            <div class="hint mt-3">
+              Tip: Store your real history in DB / localStorage. This template includes localStorage support.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Tool definitions (UI only)
+    // -----------------------------
+    const TOOL_META = {
+      txt2img: {
+        title: "Prompt → Image",
+        subtitle: "Generate images from a prompt with style controls.",
+        form: () => `
+          <div class="mb-3">
+            <label class="form-label">Prompt</label>
+            <textarea class="form-control" id="prompt" rows="4" placeholder="Eg. A futuristic street in Mumbai at night, cinematic lighting…"></textarea>
+            <div class="hint">Be specific: subject + style + mood + lighting + camera.</div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Style</label>
+              <select class="form-select" id="stylePreset">
+                <option selected>Minimal / Clean</option>
+                <option>Cinematic</option>
+                <option>3D Render</option>
+                <option>Illustration</option>
+                <option>Photoreal</option>
+                <option>Anime</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Aspect Ratio</label>
+              <select class="form-select" id="ratio">
+                <option selected>1:1 (Square)</option>
+                <option>4:5 (Portrait)</option>
+                <option>16:9 (Landscape)</option>
+                <option>9:16 (Story)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-0">
+            <div class="col-md-6">
+              <label class="form-label">Quality</label>
+              <select class="form-select" id="quality">
+                <option selected>Balanced</option>
+                <option>High</option>
+                <option>Fast</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Seed (Optional)</label>
+              <input class="form-control" id="seed" placeholder="Eg. 12345">
+              <div class="hint">For consistent variations.</div>
+            </div>
+          </div>
+        `
+      },
+
+      style: {
+        title: "Image → Styles",
+        subtitle: "Upload an image and generate multiple styled variations.",
+        form: () => `
+          <div class="mb-3">
+            <label class="form-label">Upload Image</label>
+            <div class="dropzone">
+              <div>
+                <strong>Drag & drop</strong>
+                <small>or choose a file (JPG/PNG)</small>
+              </div>
+              <input type="file" class="form-control" id="uploadImage" accept="image/*" style="max-width:220px;">
+            </div>
+            <div class="hint">Use sharp, well-lit image for best results.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Select Styles</label>
+            <div class="d-flex flex-wrap gap-2">
+              ${["Cinematic","Anime","Watercolor","Oil Paint","Sketch","Cyberpunk","Vintage","3D"].map(s => `
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="st_${s}" checked>
+                  <label class="form-check-label" for="st_${s}" style="color: rgba(255,255,255,.78); font-size: 12px;">${s}</label>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Strength</label>
+              <input type="range" class="form-range" id="strength" min="0" max="100" value="60">
+              <div class="hint">Higher strength = stronger style transfer.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Preserve Face</label>
+              <select class="form-select" id="preserveFace">
+                <option selected>On</option>
+                <option>Off</option>
+              </select>
+            </div>
+          </div>
+        `
+      },
+
+      tryon: {
+        title: "Specs Try-On",
+        subtitle: "Upload face photo + specs photo and preview how it looks.",
+        form: () => `
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Face Photo</label>
+              <div class="dropzone">
+                <div>
+                  <strong>Upload face</strong>
+                  <small>Front-facing, good light</small>
+                </div>
+                <input type="file" class="form-control" id="faceImage" accept="image/*" style="max-width:220px;">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Specs Photo</label>
+              <div class="dropzone">
+                <div>
+                  <strong>Upload specs</strong>
+                  <small>Prefer transparent background</small>
+                </div>
+                <input type="file" class="form-control" id="specsImage" accept="image/*" style="max-width:220px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-0">
+            <div class="col-md-6">
+              <label class="form-label">Fit</label>
+              <select class="form-select" id="fit">
+                <option selected>Auto</option>
+                <option>Tight</option>
+                <option>Relaxed</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Angle Correction</label>
+              <select class="form-select" id="angle">
+                <option selected>Auto</option>
+                <option>Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-3">
+            <label class="form-label">Notes (Optional)</label>
+            <input class="form-control" id="notes" placeholder="Eg. slightly lower on nose, thinner frame…">
+          </div>
+        `
+      },
+
+      hair: {
+        title: "Haircut Preview",
+        subtitle: "Upload your face + a hairstyle sample to visualize the result.",
+        form: () => `
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Your Photo</label>
+              <div class="dropzone">
+                <div>
+                  <strong>Upload face</strong>
+                  <small>Front-facing, high-res</small>
+                </div>
+                <input type="file" class="form-control" id="yourPhoto" accept="image/*" style="max-width:220px;">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Hairstyle Sample</label>
+              <div class="dropzone">
+                <div>
+                  <strong>Upload sample</strong>
+                  <small>Similar angle is best</small>
+                </div>
+                <input type="file" class="form-control" id="hairSample" accept="image/*" style="max-width:220px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-0">
+            <div class="col-md-6">
+              <label class="form-label">Blend Level</label>
+              <input type="range" class="form-range" id="blend" min="0" max="100" value="55">
+              <div class="hint">Higher blend = stronger hairstyle mapping.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Hair Color Preserve</label>
+              <select class="form-select" id="hairColor">
+                <option selected>Auto</option>
+                <option>Preserve Original</option>
+                <option>Match Sample</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-3">
+            <label class="form-label">Desired Finish</label>
+            <select class="form-select" id="finish">
+              <option selected>Natural</option>
+              <option>Salon / Styled</option>
+              <option>Matte</option>
+              <option>Glossy</option>
+            </select>
+          </div>
+        `
+      }
+    };
+
+    // -----------------------------
+    // History (localStorage)
+    // -----------------------------
+    const LS_KEY = "microtools_history_v1";
+
+    function loadHistory(){
+      try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+      catch(e){ return []; }
+    }
+    function saveHistory(items){
+      localStorage.setItem(LS_KEY, JSON.stringify(items));
+    }
+
+    function addHistoryItem(item){
+      const items = loadHistory();
+      items.unshift(item);
+      saveHistory(items.slice(0, 100));
+      renderHistory();
+    }
+
+    function clearHistory(){
+      saveHistory([]);
+      renderHistory();
+    }
+
+    function niceToolName(key){
+      return TOOL_META[key]?.title || key;
+    }
+
+    // -----------------------------
+    // UI Switching
+    // -----------------------------
+    const toolList = document.getElementById("toolList");
+    const dynamicForm = document.getElementById("dynamicForm");
+    const toolView = document.getElementById("toolView");
+    const historyView = document.getElementById("historyView");
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+
+    const btnRun = document.getElementById("btnRun");
+    const btnClear = document.getElementById("btnClear");
+    const btnHistory = document.getElementById("btnHistory");
+
+    const previewImg = document.getElementById("previewImg");
+    const previewPlaceholder = document.getElementById("previewPlaceholder");
+
+    let currentTool = "txt2img";
+
+    function setActiveTool(toolKey){
+      currentTool = toolKey;
+
+      // sidebar active state
+      [...document.querySelectorAll(".tool-item")].forEach(a => {
+        a.classList.toggle("active", a.dataset.tool === toolKey);
+      });
+
+      // history vs tool view
+      if(toolKey === "history"){
+        toolView.style.display = "none";
+        historyView.style.display = "block";
+        pageTitle.textContent = "History";
+        pageSubtitle.textContent = "All previous requests and results in one place.";
+        btnRun.style.display = "none";
+        btnClear.style.display = "none";
+        renderHistory();
+        return;
+      }
+
+      toolView.style.display = "grid";
+      historyView.style.display = "none";
+      btnRun.style.display = "";
+      btnClear.style.display = "";
+
+      // render tool form
+      pageTitle.textContent = TOOL_META[toolKey].title;
+      pageSubtitle.textContent = TOOL_META[toolKey].subtitle;
+      dynamicForm.innerHTML = TOOL_META[toolKey].form();
+
+      // wire file previews
+      wireImageInputsForPreview();
+    }
+
+    toolList.addEventListener("click", (e) => {
+      const a = e.target.closest(".tool-item");
+      if(!a) return;
+      e.preventDefault();
+      setActiveTool(a.dataset.tool);
+    });
+
+    btnHistory.addEventListener("click", () => setActiveTool("history"));
+
+    btnClear.addEventListener("click", () => {
+      // clears current form fields
+      dynamicForm.querySelectorAll("input, textarea, select").forEach(el => {
+        if(el.type === "file") el.value = "";
+        else if(el.type === "checkbox") el.checked = false;
+        else if(el.type === "range") el.value = 50;
+        else el.value = "";
+      });
+
+      // reset preview
+      previewImg.style.display = "none";
+      previewImg.src = "";
+      previewPlaceholder.style.display = "block";
+    });
+
+    // -----------------------------
+    // Preview helpers
+    // -----------------------------
+    function setPreviewFromFile(file){
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.style.display = "block";
+      previewPlaceholder.style.display = "none";
+    }
+
+    function wireImageInputsForPreview(){
+      const fileInputs = dynamicForm.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(inp => {
+        inp.addEventListener("change", () => {
+          if(inp.files && inp.files[0]) setPreviewFromFile(inp.files[0]);
+        });
+      });
+    }
+
+    // -----------------------------
+    // Run Tool (hook your API here)
+    // -----------------------------
+    function gatherPayload(){
+      const payload = { tool: currentTool, createdAt: new Date().toISOString() };
+      dynamicForm.querySelectorAll("input, textarea, select").forEach(el => {
+        const key = el.id || el.name;
+        if(!key) return;
+
+        if(el.type === "file"){
+          payload[key] = el.files?.[0]?.name || null; // in real app, attach file blob/formdata
+        } else if(el.type === "checkbox"){
+          payload[key] = el.checked;
+        } else {
+          payload[key] = el.value;
+        }
+      });
+      return payload;
+    }
+
+    function fakeResult(){
+      // purely UI demo "result"
+      const messages = {
+        txt2img: "Generated 1 image from prompt.",
+        style: "Generated multiple styled outputs.",
+        tryon: "Specs overlay computed.",
+        hair: "Haircut preview rendered."
+      };
+      return messages[currentTool] || "Done.";
+    }
+
+    function runTool(){
+      // TODO: replace with fetch() to your backend
+      const payload = gatherPayload();
+
+      addHistoryItem({
+        id: crypto.randomUUID?.() || String(Date.now()),
+        tool: payload.tool,
+        time: new Date().toLocaleString(),
+        summary: fakeResult(),
+        payload
+      });
+
+      // show a gentle "result" visual by toggling placeholder if empty
+      if(previewImg.style.display === "none"){
+        // keep placeholder but "pulse"
+        previewPlaceholder.innerHTML = `
+          <div class="text-center px-3">
+            <div class="mb-1"><i class="bi bi-stars" style="font-size:28px;"></i></div>
+            <div style="font-size:12px;color:rgba(255,255,255,.68);">
+              Request submitted. Connect API in <code>runTool()</code> to show real output.
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    btnRun.addEventListener("click", runTool);
+
+    // -----------------------------
+    // History UI
+    // -----------------------------
+    const historyList = document.getElementById("historyList");
+    const historySearch = document.getElementById("historySearch");
+    const historyFilter = document.getElementById("historyFilter");
+    const btnClearHistory = document.getElementById("btnClearHistory");
+    const btnSeed = document.getElementById("btnSeed");
+
+    function renderHistory(){
+      const items = loadHistory();
+
+      const q = (historySearch?.value || "").toLowerCase().trim();
+      const f = historyFilter?.value || "all";
+
+      const filtered = items.filter(it => {
+        const matchTool = f === "all" ? true : it.tool === f;
+        const matchText = !q ? true : (
+          (it.summary || "").toLowerCase().includes(q) ||
+          JSON.stringify(it.payload || {}).toLowerCase().includes(q)
+        );
+        return matchTool && matchText;
+      });
+
+      historyList.innerHTML = filtered.length ? "" : `
+        <div class="text-center" style="grid-column:1/-1; color: rgba(255,255,255,.55); padding: 30px 10px;">
+          <div class="mb-2"><i class="bi bi-inbox" style="font-size:28px;"></i></div>
+          No history yet. Run a tool to create entries.
+        </div>
+      `;
+
+      filtered.forEach(it => {
+        const payload = it.payload || {};
+        const kvs = [];
+
+        // show a few useful fields
+        const pickKeys = Object.keys(payload).filter(k => !["tool","createdAt"].includes(k)).slice(0,4);
+        pickKeys.forEach(k => {
+          if(payload[k] === "" || payload[k] == null) return;
+          kvs.push(`<div class="kv"><span>${k}:</span>${String(payload[k]).slice(0,34)}</div>`);
+        });
+
+        historyList.insertAdjacentHTML("beforeend", `
+          <div class="history-card">
+            <div class="row1">
+              <h4>${niceToolName(it.tool)}</h4>
+              <span class="chip"><i class="bi bi-calendar2-week"></i> ${it.time}</span>
+            </div>
+            <p>${it.summary || ""}</p>
+            <div class="kvs">${kvs.join("")}</div>
+          </div>
+        `);
+      });
+    }
+
+    historySearch?.addEventListener("input", renderHistory);
+    historyFilter?.addEventListener("change", renderHistory);
+
+    btnClearHistory?.addEventListener("click", () => {
+      clearHistory();
+    });
+
+    btnSeed?.addEventListener("click", () => {
+      const demo = [
+        { tool:"txt2img", summary:"Generated 1 image from prompt.", payload:{ tool:"txt2img", prompt:"Neon Mumbai street, cinematic", stylePreset:"Cinematic", ratio:"16:9 (Landscape)", quality:"High", seed:"1203" } },
+        { tool:"style", summary:"Generated multiple styled outputs.", payload:{ tool:"style", uploadImage:"selfie.png", strength:"65", preserveFace:"On" } },
+        { tool:"tryon", summary:"Specs overlay computed.", payload:{ tool:"tryon", faceImage:"face.jpg", specsImage:"frame.png", fit:"Auto", angle:"Auto" } },
+        { tool:"hair", summary:"Haircut preview rendered.", payload:{ tool:"hair", yourPhoto:"me.jpg", hairSample:"fade.png", blend:"58", hairColor:"Auto", finish:"Natural" } },
+      ];
+      demo.forEach(d => addHistoryItem({
+        id: crypto.randomUUID?.() || String(Date.now()+Math.random()),
+        tool: d.tool,
+        time: new Date().toLocaleString(),
+        summary: d.summary,
+        payload: { ...d.payload, createdAt: new Date().toISOString() }
+      }));
+      renderHistory();
+    });
+
+    // Boot
+    setActiveTool("txt2img");
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
