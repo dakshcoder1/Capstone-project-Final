@@ -33,6 +33,17 @@
           </div>
         </a>
 
+
+         <a class="tool-item" href="tool-prompt-enhancer.html">
+  <div class="tool-icon">
+    <i class="bi bi-cpu"></i>
+  </div>
+  <div class="tool-meta">
+    <p class="tool-name">Prompt Enhancer</p>
+    <p class="tool-desc">Enhance your prompts</p>
+  </div>
+</a>
+
         <a class="tool-item active" href="tool-prompt-to-image.html">
           <div class="tool-icon"><i class="bi bi-magic"></i></div>
           <div class="tool-meta">
@@ -40,6 +51,7 @@
             <p class="tool-desc">Text prompt to image</p>
           </div>
         </a>
+       
 
         <a class="tool-item" href="tool-image-to-style.html">
           <div class="tool-icon"><i class="bi bi-palette2"></i></div>
@@ -112,46 +124,153 @@
     </aside>
 
 
-
     <main class="main">
   <div class="topbar">
-    <div class="crumb">
-      <p class="title">Insta Story Template</p>
-      <p class="subtitle">Create vertical 9:16 templates for Instagram Stories.</p>
-    </div>
-     <div class="d-flex gap-2">
-          <button class="btn btn-elegant" type="reset" form="promptForm">
-            <i class="bi bi-trash3 me-1"></i>Clear
-          </button>
-          <button class="btn btn-primary btn-primary-elegant" type="submit" form="promptForm">
-            <i class="bi bi-play-fill me-1"></i>Generate
+    <div class="crumb"><p class="title">Safety Gear Try-On</p></div>
+    <div class="d-flex gap-2">
+<button class="btn btn-elegant" type="reset" form="promptForm" id="clearBtn">
+  <i class="bi bi-trash3 me-1"></i>Clear
+</button>
+
+<button class="btn btn-primary btn-primary-elegant" type="submit" form="promptForm">
+            <i class="bi bi-play-fill me-1"></i>Preview
           </button>
         </div>
   </div>
 
-  
-
-  
-
-  <div class="grid" style="grid-template-columns: 1fr 1fr;">
+  <div class="grid">
     <div class="panel">
-      <div class="panel-header"><h3><i class="bi bi-layers"></i> Template Styles</h3></div>
+      <div class="panel-header"><h3><i class="bi bi-shield-check"></i> Gear Selection</h3></div>
       <div class="panel-body">
-        <div class="d-flex flex-wrap gap-2 mb-4">
-          <button class="btn btn-outline-dark active">Minimal</button>
-          <button class="btn btn-outline-dark">Dynamic</button>
-          <button class="btn btn-outline-dark">Cinematic</button>
-        </div>
-        <label class="form-label">Overlay Text</label>
-        <input type="text" class="form-control" placeholder="Type your story headline...">
+        <form id="promptForm" action="#" method="post" enctype="multipart/form-data">
+
+  <label class="form-label">Upload Person Photo</label>
+<input type="file" class="form-control mb-3" id="imgInput" name="image" accept="image/*">
+
+  <div class="mb-3">
+    <label class="form-label">Prompt</label>
+    <textarea class="form-control" name="prompt" rows="5"
+      placeholder="Eg. Going to construction site,Bike ride,Water sports"></textarea>
+    <div class="hint">Tip: Mention subject + style + mood.</div>
+  </div>
+
+</form>
+
+    <div class="d-flex justify-content-end mt-3">
+
+
+
+      <div class="result-section" id="resultSection" style="display: none;">
+              <div class="advice-safety-gear">
+                <label><i class="bi bi-star-fill"></i> Safety Gear</label>
+                <div class="advice-safety-gear-text" id="advicesafetygeartext"></div>
+                <button class="copy-btn" onclick="copyToClipboard()">
+                  <i class="bi bi-clipboard"></i> Copy to Clipboard
+                </button>
+              </div>
+      </div>
+
+
+
+       
+    </div>
+    <div class="preview-box mt-4">
+  <div class="preview-thumb resizable" id="thumb">
+    <img id="previewImg" alt="preview">
+
+    <div id="placeholder" class="text-center px-3">
+      <i class="bi bi-image" style="font-size:28px;"></i>
+      <div class="mt-2" style="font-size:12px;color:rgba(83, 247, 228, 0.6);">
+        Upload an image to preview it here.
       </div>
     </div>
-    <div class="panel panel-3d d-flex justify-content-center">
-      <div class="preview-thumb" style="width: 280px; aspect-ratio: 9/16; height: auto;">
-        <i class="bi bi-phone"></i>
-      </div>
+  </div>
+</div>
+
     </div>
   </div>
 </main>
 
- 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const form = document.getElementById("promptForm");
+  const imageInput = document.getElementById("imgInput");
+  const previewImg = document.getElementById("previewImg");
+  const placeholder = document.getElementById("placeholder");
+  const adviceBox = document.getElementById("advicesafetygeartext");
+  const resultSection = document.getElementById("resultSection");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const imageFile = imageInput.files[0];
+    const prompt = form.querySelector("textarea[name='prompt']").value.trim();
+
+    if (!imageFile || !prompt) {
+      alert("Image and gear type required");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    formData.append("prompt", prompt);
+
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/safety-gear", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Bad request");
+        return;
+      }
+
+      previewImg.src = data.image_url + "?v=" + Date.now();
+      previewImg.style.display = "block";
+      placeholder.style.display = "none";
+
+      adviceBox.innerText = data.advice;
+      resultSection.style.display = "block";
+
+    } catch (err) {
+      console.error(err);
+      alert("Cannot connect to backend");
+    }
+  });
+
+
+  const clearBtn = document.querySelector("button[type='reset'][form='promptForm']");
+
+clearBtn.addEventListener("click", (e) => {
+  e.preventDefault(); // ⛔ stop default reset
+
+  // reset form inputs
+  form.reset();
+
+  // clear preview image
+  previewImg.src = "";
+  previewImg.style.display = "none";
+
+  // show placeholder
+  placeholder.style.display = "block";
+
+  // clear advice text
+  adviceBox.textContent = "";
+
+  // hide result section
+  resultSection.style.display = "none";
+
+  console.log("✔ Output cleared properly");
+});
+
+
+});
+</script>
+
+
+</body>
+</html>

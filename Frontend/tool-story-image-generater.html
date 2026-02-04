@@ -33,6 +33,17 @@
           </div>
         </a>
 
+
+         <a class="tool-item" href="tool-prompt-enhancer.html">
+  <div class="tool-icon">
+    <i class="bi bi-cpu"></i>
+  </div>
+  <div class="tool-meta">
+    <p class="tool-name">Prompt Enhancer</p>
+    <p class="tool-desc">Enhance your prompts</p>
+  </div>
+</a>
+
         <a class="tool-item active" href="tool-prompt-to-image.html">
           <div class="tool-icon"><i class="bi bi-magic"></i></div>
           <div class="tool-meta">
@@ -40,6 +51,7 @@
             <p class="tool-desc">Text prompt to image</p>
           </div>
         </a>
+     
 
         <a class="tool-item" href="tool-image-to-style.html">
           <div class="tool-icon"><i class="bi bi-palette2"></i></div>
@@ -112,14 +124,13 @@
     </aside>
 
 
-     <!-- MAIN -->
     <main class="main">
-      <div class="topbar">
-        <div>
-          <p class="page-title">Insta Post → Generater</p>
-          <p class="page-subtitle">Type a prompt and submit. Backend will generate post with caption and hastag.</p>
-        </div>
-        <div class="d-flex gap-2">
+  <div class="topbar">
+    <div class="crumb">
+      <p class="title">Story Image Generator</p>
+      <p class="subtitle">Convert text narratives into visual scenes.</p>
+    </div>
+    <div class="d-flex gap-2">
           <button class="btn btn-elegant" type="reset" form="promptForm">
             <i class="bi bi-trash3 me-1"></i>Clear
           </button>
@@ -127,47 +138,114 @@
             <i class="bi bi-play-fill me-1"></i>Generate
           </button>
         </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-header"><h3><i class="bi bi-journal-richtext"></i> Narrative Input</h3></div>
+      <div class="panel-body">
+<form id="promptForm">
+  <textarea
+    id="promptText"
+    class="form-control"
+    rows="8"
+    placeholder="Enter your full story scene..."
+  ></textarea>
+</form>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-3">
+        <button
+          type="button"
+          class="btn btn-primary-elegant text-white"
+          id="copyBtn"
+        >
+          📋 Copy
+        </button>
       </div>
 
 
-      <div class="panel">
-        <div class="panel-header">
-          <h3><i class="bi bi-upload me-2"></i>Upload</h3>
-        </div>
-        <div class="panel-body">
-          <form id="styleForm" action="#" method="post" enctype="multipart/form-data">
-
-            <div class="mb-3">
-              <label class="form-label">Choose Image</label>
-              <input class="form-control" type="file" id="imgInput" name="image" accept="image/*">
-              <div class="hint">The preview below uses a little JS (only for UI).</div>
-            </div>
-
-             <div class="panel-body">
-          <form id="promptForm" action="#" method="post">
-            <div class="mb-3">
-              <label class="form-label">Prompt</label>
-              <textarea class="form-control" name="prompt" rows="5" placeholder="Eg. A modern minimal logo for a coffee brand, clean lines, black and white…"></textarea>
-              <div class="hint">Tip: Mention subject + style + mood.</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Style</label>
-              <select class="form-select" name="style">
-                <option value="instagram" selected>Instagram</option>
-                <option value="linkedin">Linkedin</option>
-                <option value="facebook">Facebook</option>
-                <option value="snapchat">Snapchat</option>
-              </select>
-            </div>
-
-            <div class="preview-box mt-4">
-              <div class="preview-thumb" id="thumb">
-                <img id="previewImg" alt="preview">
-                <div id="placeholder" class="text-center px-3">
-                  <i class="bi bi-image" style="font-size:28px;"></i>
-                  <div class="mt-2" style="font-size:12px;color:rgba(101, 207, 14, 0.6);">
-                    Upload an image to preview it here.
-                  </div>
 
 
+   <div class="preview-box mt-4">
+  <div class="preview-thumb resizable" id="thumb">
+    <img id="previewImg" alt="preview">
+
+    <div id="placeholder" class="text-center px-3">
+      <i class="bi bi-image" style="font-size:28px;"></i>
+      <div class="mt-2" style="font-size:12px;color:rgba(83, 247, 228, 0.6);">
+        Upload an image to preview it here.
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+
+
+ <script>
+  const form = document.getElementById("promptForm");
+  const promptInput = document.getElementById("promptText");
+  const previewImg = document.getElementById("previewImg");
+  const placeholder = document.getElementById("placeholder");
+
+  // =============================
+  // SUBMIT (GENERATE IMAGE)
+  // =============================
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const prompt = promptInput.value.trim();
+
+    if (!prompt) {
+      alert("Please type a prompt before clicking Generate");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        "http://127.0.0.1:5000/api/story-image-generater",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.error || "Backend error");
+        return;
+      }
+
+      // ✅ SHOW IMAGE
+      previewImg.src = data.image_url + "?t=" + Date.now();
+      previewImg.style.display = "block";
+      placeholder.style.display = "none";
+
+    } catch (err) {
+      console.error(err);
+      alert("Backend not reachable");
+    }
+  });
+
+  // =============================
+  // CLEAR
+  // =============================
+  form.addEventListener("reset", () => {
+    previewImg.src = "";
+    previewImg.style.display = "none";
+    placeholder.style.display = "block";
+
+    console.log("✔ Story-Image-Generator cleared");
+  });
+</script>
+
+
+</body>
+</html>

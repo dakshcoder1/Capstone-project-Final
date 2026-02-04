@@ -66,3 +66,35 @@ document.querySelectorAll("input[type=file]").forEach(input => {
     }
   });
 });
+/*=====================Textbox=====================*/
+
+  const copyBtn = document.getElementById("copyBtn");
+  const textarea = document.getElementById("promptText");
+
+  copyBtn.addEventListener("click", async () => {
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    try {
+      // Modern clipboard API
+      await navigator.clipboard.writeText(text);
+
+      // Optional feedback
+      const originalText = copyBtn.innerText;
+      copyBtn.innerText = "✅ Copied!";
+      setTimeout(() => {
+        copyBtn.innerText = originalText;
+      }, 1200);
+    } catch (err) {
+      // Fallback for old browsers
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+
+      const originalText = copyBtn.innerText;
+      copyBtn.innerText = "✅ Copied!";
+      setTimeout(() => {
+        copyBtn.innerText = originalText;
+      }, 1200);
+    }
+  });

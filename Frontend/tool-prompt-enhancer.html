@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prompt Enhancer</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+  <style>
+    .prompt-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 30px;
+      color: white;
+      margin-bottom: 30px;
+    }
+    
+    .input-section {
+      margin-bottom: 20px;
+    }
+    
+    .input-section label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .form-control {
+      border: 2px solid #e0e0e0;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    textarea.form-control {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    .btn-apply {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 12px 30px;
+      font-weight: 600;
+      border-radius: 8px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    
+    .btn-apply:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-apply:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .result-section {
+      margin-top: 30px;
+    }
+    
+    .enhanced-prompt {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .enhanced-prompt label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: block;
+      font-size: 14px;
+    }
+    
+    .enhanced-prompt-text {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      color: #333;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
+    
+    .copy-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .copy-btn:hover {
+      background: #764ba2;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+    }
+    
+    .spinner-border {
+      color: #667eea;
+    }
+    
+    .error-message {
+      color: #dc3545;
+      padding: 12px;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 6px;
+      margin-top: 15px;
+      display: none;
+    }
+    
+    .success-message {
+      color: #155724;
+      padding: 12px;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 6px;
+      margin-top: 15px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge"><i class="bi bi-stars"></i></div>
+        <div>
+          <h1>Micro Tools Studio</h1>
+          <p>Minimal UI • Beginner friendly</p>
+        </div>
+      </div>
+
+      <div class="nav-title">Tools</div>
+      <div class="tool-list">
+        <a class="tool-item" href="index.html">
+          <div class="tool-icon"><i class="bi bi-grid-1x2"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Dashboard</p>
+            <p class="tool-desc">Quick access to all tools</p>
+          </div>
+        </a>
+
+         <a class="tool-item" href="tool-prompt-enhancer.html">
+  <div class="tool-icon">
+    <i class="bi bi-cpu"></i>
+  </div>
+  <div class="tool-meta">
+    <p class="tool-name">Prompt Enhancer</p>
+    <p class="tool-desc">Enhance your prompts</p>
+  </div>
+</a>
+
+        <a class="tool-item" href="tool-prompt-to-image.html">
+          <div class="tool-icon"><i class="bi bi-magic"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Prompt → Image</p>
+            <p class="tool-desc">Text prompt to image</p>
+          </div>
+        </a>
+
+        
+
+
+
+        <a class="tool-item" href="tool-image-to-style.html">
+          <div class="tool-icon"><i class="bi bi-palette2"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Image → Style</p>
+            <p class="tool-desc">Apply a style to an image</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-specs-tryon.html">
+          <div class="tool-icon"><i class="bi bi-eyeglasses"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Specs Try-On</p>
+            <p class="tool-desc">Face + Specs overlay</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-haircut-preview.html">
+          <div class="tool-icon"><i class="bi bi-scissors"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Haircut Preview</p>
+            <p class="tool-desc">Face + Hair style sample</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-insta-post-generator.html">
+          <div class="tool-icon"><i class="bi bi-plus-square"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Insta Post Generator</p>
+            <p class="tool-desc">Ready Insta Post</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-insta-story-template.html">
+          <div class="tool-icon"><i class="bi bi-phone"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Insta Story Template</p>
+            <p class="tool-desc">Get Insta Story</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-healthy-poster-analayser.html">
+          <div class="tool-icon"><i class="bi bi-person-check"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Healthy-Poster-Analyser</p>
+            <p class="tool-desc">Analyze healthy posters</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-safety-gear.html">
+          <div class="tool-icon"><i class="bi bi-shield-check"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Safety Gear Try-On</p>
+            <p class="tool-desc">Get Safety Gear Try</p>
+          </div>
+        </a>
+
+        <a class="tool-item" href="tool-story-image-generater.html">
+          <div class="tool-icon"><i class="bi bi-journal-richtext"></i></div>
+          <div class="tool-meta">
+            <p class="tool-name">Story-Image Generator</p>
+            <p class="tool-desc">Get the story in Image</p>
+          </div>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="container-fluid p-4">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="mb-4"><i class="bi bi-sparkles"></i> Prompt Enhancer</h2>
+            <p class="text-muted mb-4">Transform a simple prompt into a detailed, image-generation-ready prompt</p>
+
+            <div class="prompt-container">
+              <div class="input-section">
+                <label for="simplePrompt"><i class="bi bi-pencil-square"></i> Enter Your Simple Prompt</label>
+                <textarea 
+                  class="form-control" 
+                  id="simplePrompt" 
+                  placeholder="e.g., cat is dating dog, a beautiful sunset, a futuristic city"
+                  rows="3"
+                ></textarea>
+                <small class="text-white-50 mt-2 d-block">Be as simple or detailed as you want - we'll enhance it!</small>
+              </div>
+
+              <button class="btn btn-apply btn-light" id="applyBtn">
+                <i class="bi bi-magic"></i> Enhance Prompt
+              </button>
+
+              <div class="loading" id="loading">
+                <div class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-white-50">Enhancing your prompt...</p>
+              </div>
+
+              <div class="error-message" id="errorMessage"></div>
+              <div class="success-message" id="successMessage">Prompt enhanced successfully!</div>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+              <div class="enhanced-prompt">
+                <label><i class="bi bi-star-fill"></i> Enhanced Prompt</label>
+                <div class="enhanced-prompt-text" id="enhancedPromptText"></div>
+                <button class="copy-btn" onclick="copyToClipboard()">
+                  <i class="bi bi-clipboard"></i> Copy to Clipboard
+                </button>
+              </div>
+
+              <div class="d-grid gap-2 mt-3">
+                <a href="tool-prompt-to-image.html" class="btn btn-primary" id="generateImageBtn">
+                  <i class="bi bi-image"></i> Generate Image with This Prompt
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = "http://localhost:5000/api";
+    
+    document.getElementById("applyBtn").addEventListener("click", enhancePrompt);
+    
+    async function enhancePrompt() {
+      const simplePrompt = document.getElementById("simplePrompt").value.trim();
+      
+      if (!simplePrompt) {
+        showError("Please enter a prompt to enhance");
+        return;
+      }
+      
+      // Show loading state
+      document.getElementById("applyBtn").disabled = true;
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("errorMessage").style.display = "none";
+      document.getElementById("resultSection").style.display = "none";
+      
+      try {
+        const response = await fetch(`${API_BASE}/enhance-prompt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt: simplePrompt })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          document.getElementById("enhancedPromptText").textContent = data.enhanced_prompt;
+          document.getElementById("resultSection").style.display = "block";
+          document.getElementById("successMessage").style.display = "block";
+          
+          // Store enhanced prompt in sessionStorage for next tool
+          sessionStorage.setItem("enhancedPrompt", data.enhanced_prompt);
+        } else {
+          showError(data.error || "Failed to enhance prompt");
+        }
+      } catch (error) {
+        showError("Error: " + error.message);
+      } finally {
+        document.getElementById("applyBtn").disabled = false;
+        document.getElementById("loading").style.display = "none";
+      }
+    }
+    
+    function showError(message) {
+      const errorDiv = document.getElementById("errorMessage");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+    }
+    
+    function copyToClipboard() {
+      const enhancedPrompt = document.getElementById("enhancedPromptText").textContent;
+      navigator.clipboard.writeText(enhancedPrompt).then(() => {
+        alert("Prompt copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy. Please try again.");
+      });
+    }
+  </script>
+</body>
+</html>
