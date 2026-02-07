@@ -225,12 +225,14 @@ generateBtn.addEventListener("click", async () => {
     || "minimal";
 
   try {
+    const token = localStorage.getItem("token");
     const res = await fetch(
       "http://127.0.0.1:5000/api/insta-story-template",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
         },
         body: JSON.stringify({
           overlay_text: overlay_text,

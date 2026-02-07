@@ -285,8 +285,12 @@ analyzeBtn.addEventListener("click", async () => {
   formData.append("image", file);
 
   try {
+    const token = localStorage.getItem("token");
     const res = await fetch("http://127.0.0.1:5000/api/posture-analyze", {
       method: "POST",
+       headers: { 
+             "Authorization": "Bearer " + token
+          },
       body: formData
     });
 

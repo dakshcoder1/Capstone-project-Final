@@ -232,26 +232,33 @@
     }
 
     try {
+    const token = localStorage.getItem("token");
+
       const res = await fetch(
         "http://127.0.0.1:5000/api/prompt-to-image",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" ,
+             "Authorization": "Bearer " + token
+          },
           body: JSON.stringify({ prompt, style })
         }
       );
 
+      console.log("data get here==================================")
       const data = await res.json();
 
       if (!data.image_url) {
         alert("Image not received from backend");
         return;
       }
+      console.log("image_url")
 
       // ✅ SHOW BACKEND IMAGE
       previewImg.src = data.image_url + "?t=" + Date.now();
       previewImg.style.display = "block";
       placeholder.style.display = "none";
+
 
     } catch (err) {
       console.error(err);

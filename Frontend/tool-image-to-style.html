@@ -227,9 +227,13 @@ form.addEventListener("submit", async e => {
   fd.append("image", imgInput.files[0]);
   fd.append("prompt", promptInput.value);
   fd.append("style", document.querySelector("select[name='style']").value);
+const token = localStorage.getItem("token");
 
   const res = await fetch("http://127.0.0.1:5000/api/image-to-style", {
     method: "POST",
+     headers: { 
+             "Authorization": "Bearer " + token
+          },
     body: fd
   });
 

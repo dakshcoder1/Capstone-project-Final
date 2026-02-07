@@ -235,10 +235,14 @@
     formData.append("prompt", prompt); // optional
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
         "http://127.0.0.1:5000/api/specs-tryon",
         {
           method: "POST",
+        headers: { 
+            "Authorization": "Bearer " + token
+        },
           body: formData
         }
       );

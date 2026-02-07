@@ -3,11 +3,15 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+from auth import hash_password, verify_password, create_token, get_current_user
+from models import db, User, History
 
 
 load_dotenv()
 
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'frontend'))
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY','fallback-secret-key') #Get from env or use fallback
@@ -35,6 +39,7 @@ DATABASE_URL =os.getenv('DATABASE_URL','sqlite:///default.db')
 print(DATABASE_URL)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'supersecretkey'
 
 # Connection pool setting (for production)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] ={
@@ -43,23 +48,38 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] ={
     'pool_pre_ping':True,#Check connecton validitty before using
 }
 
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 
 
-# =============================================================================
-# MODEL
-# =============================================================================
-class History(db.Model):
-    __tablename__ = "history"
+# # =============================================================================
+# # MODEL
+# # =============================================================================
+# class History(db.Model):
+#     __tablename__ = "history"
 
-    id=db.Column(db.Integer,primary_key=True)
-    tool_name=db.Column(db.String(200),nullable=False)
+#     id=db.Column(db.Integer,primary_key=True)
+#     tool_name=db.Column(db.String(200),nullable=False)
    
-    input_text= db.Column(db.Text)
-    input_img= db.Column(db.String(400))
+#     input_text= db.Column(db.Text)
+#     input_img= db.Column(db.String(400))
     
-    output_text=db.Column(db.Text)
-    output_img=db.Column(db.String(400))
+#     output_text=db.Column(db.Text)
+#     output_img=db.Column(db.String(400))
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
+
+
+# class User(db.Model):
+#     __tablename__ = 'users'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(80), unique=True, nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#     password_hash = db.Column(db.String(256), nullable=False)
+#     is_admin = db.Column(db.Boolean, default=False)
+
+#     history = db.relationship('History', backref='owner', lazy=True)
 
 
 
@@ -67,7 +87,11 @@ class History(db.Model):
 # PATH CONFIG
 # ----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+print(BASE_DIR)
+
 GENERATED_FOLDER = os.path.join(BASE_DIR, "generated")
+print("==============================================a")
+
 
 # Ensure folder exists
 os.makedirs(GENERATED_FOLDER, exist_ok=True)
@@ -75,10 +99,38 @@ os.makedirs(GENERATED_FOLDER, exist_ok=True)
 # ----------------------------
 # HEALTH CHECK
 # ----------------------------
-@app.route("/")
-def home():
-    return jsonify({"status": "Flask backend running"})
 
+@app.route('/')
+def home():
+    return send_from_directory(FRONTEND_DIR, 'home.html')
+print("ddd===============================")
+
+
+# 2. The Private Dashboard
+@app.route('/dashboard')
+def index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/login')
+def login_page():
+    return send_from_directory(FRONTEND_DIR, 'login.html')
+
+@app.route('/register')
+def register_page():
+    return send_from_directory(FRONTEND_DIR,'register.html')
+
+@app.route('/<path:filename>')
+def serve_frontend(filename):
+    # Serve ANY file from frontend folder
+    file_path = os.path.join(FRONTEND_DIR, filename)
+    
+
+
+    if os.path.exists(file_path):
+        return send_from_directory(FRONTEND_DIR, filename)
+
+    # Fallback → home page
+    return send_from_directory(FRONTEND_DIR, 'home.html')
 
 
 
@@ -86,7 +138,20 @@ def home():
 
 @app.route("/api/history", methods=["GET"])
 def get_history():
-    records = History.query.order_by(History.id.asc()).all()
+    print("=====================ooo")
+
+      # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
+
+
+    
+  
+    # Step 2: Get only this user's history
+    records = History.query.filter_by(user_id=current_user.id).order_by(History.id.asc()).all()
+
     return jsonify([
         {
             "id": r.id,
@@ -94,10 +159,74 @@ def get_history():
             "input_text": r.input_text,
             "input_img": r.input_img,
             "output_text": r.output_text,
-            "output_img": r.output_img
-        }
+            "output_img": r.output_img,
+            "user_id": r.user_id        }
         for r in records
     ])
+
+
+
+
+
+
+# =============================================================================
+# AUTH API ROUTES
+# =============================================================================
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({'error': 'All fields required'}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 400
+
+    new_user = User(
+        username=username,
+        email=email,
+        password_hash=hash_password(password)
+    )
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'message': 'Registration successful!'}), 201
+
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not verify_password(user.password_hash, password):
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+    token = create_token(user.id, user.is_admin)
+
+    return jsonify({
+        'token': token,
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'is_admin': user.is_admin
+        }
+    }), 200
+
+
 
 
 
@@ -115,6 +244,7 @@ def serve_generated(filename):
 def prompt_to_image():
 
     data = request.json
+    print("=======================ooo=========================")
     prompt = data.get("prompt")
     style = data.get("style", "clean")
 
@@ -122,24 +252,27 @@ def prompt_to_image():
 
     if not os.path.exists(image_path):
         return jsonify({"error": "test.jpg not found"}), 404
+
+    # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
     
-
-
-
+    # Step 3: Save history
     save_history(
-    tool_name="prompt_to_image",
-    input_text=prompt,
-    output_img="test.jpg"
-)
+        tool_name="prompt_to_image",
+        input_text=prompt,
+        output_img="test.jpg",
+        user_id=current_user.id    )
 
+    # Step 4: Send response
     return jsonify({
         "success": True,
         "prompt": prompt,
         "style": style,
         "image_url": "http://127.0.0.1:5000/generated/test.jpg"
     })
-
-
 
 
 
@@ -180,13 +313,20 @@ def image_to_style():
         }), 404
     filename = image_file.filename
     image_file.save(os.path.join(GENERATED_FOLDER, filename))
+
+     # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
     
     
     save_history(
     tool_name="image_to_style",
     input_img=filename,   # ✅ real file
     input_text=prompt,
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
 )
 
 
@@ -239,12 +379,17 @@ def specs_tryon():
     face_image.save(os.path.join(GENERATED_FOLDER, face_name))
     specs_image.save(os.path.join(GENERATED_FOLDER, specs_name))
     
-    
+    # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
     save_history(
     tool_name="specs_tryon",
      input_text=prompt,
     input_img=f"{face_name},{specs_name}",  # ✅ real files
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
 )
 
 
@@ -298,12 +443,18 @@ def haircut_preview():
     user_image.save(os.path.join(GENERATED_FOLDER, user_name))
     sample_image.save(os.path.join(GENERATED_FOLDER, sample_name))
     
-    
+      # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
     save_history(
     tool_name="haircut_preview",
     input_text=prompt,
     input_img=f"{user_name},{sample_name}",  
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
+
 )
 
 
@@ -347,11 +498,18 @@ def insta_story_template():
             "error": "test.jpg not found in generated folder"
         }), 404
     
+      # Step 1: Check if user is logged in (validate token)
+    current_user, error = get_current_user()
+    if error:
+        return error  # Returns 401 if token is missing/invalid
+
 
     save_history(
     tool_name="insta_story",
     input_text=overlay_text,
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
+
 )
 
 
@@ -362,7 +520,6 @@ def insta_story_template():
         "template": template,
         "image_url": "http://127.0.0.1:5000/generated/test.jpg"
     })
-
 
 
 # ======================================================
@@ -402,12 +559,17 @@ Limit to 1–2 sentences.
         response = prompt_model.generate_content(instruction)
         enhanced_prompt = response.text.strip()
 
+        # Step 1: Check if user is logged in (validate token)
+        current_user, error = get_current_user()
+        if error:
+            return error  # Returns 401 if token is missing/invalid
 
         save_history(
-    tool_name="prompt_enhancer",
-    input_text=simple_prompt,
-    output_text=enhanced_prompt
-)
+            tool_name="prompt_enhancer",
+            input_text=simple_prompt,
+            output_text=enhanced_prompt,
+            user_id=current_user.id
+        )
 
         return jsonify({
             "success": True,
@@ -418,17 +580,20 @@ Limit to 1–2 sentences.
     except Exception as e:
         print("[ERROR] Prompt Enhancer:", str(e))
         return jsonify({
-
             "success": False,
             "error": str(e)
         }), 500
-    
      
     # ======================================================
 # ✅ NEW: INSTA POST GENERATOR (MOCK)
 # ======================================================
 @app.route("/api/insta-post-generator", methods=["POST"])
 def insta_post_generator():
+
+    # 🔐 AUTH MUST BE FIRST
+    current_user, error = get_current_user()
+    if error:
+        return error
 
     image = request.files.get("image")
     prompt = request.form.get("prompt", "").strip()
@@ -437,22 +602,18 @@ def insta_post_generator():
     has_image = image is not None
 
     test_image_path = os.path.join(GENERATED_FOLDER, "test.jpg")
-
     if not os.path.exists(test_image_path):
         return jsonify({
             "success": False,
             "error": "test.jpg not found in generated folder"
         }), 404
 
-    # ✅ SAVE INPUT IMAGE (THIS WAS MISSING)
+    # SAVE INPUT IMAGE
     filename = None
     if image:
         filename = image.filename
         image.save(os.path.join(GENERATED_FOLDER, filename))
 
-    # ----------------------------
-    # OUTPUT LOGIC (KEEP AS IS)
-    # ----------------------------
     caption = ""
     hashtags = ""
     tips = "💡 Engage with your audience by asking a question."
@@ -484,13 +645,13 @@ Tips:
 {tips}
 """
 
-    # ✅ SAVE HISTORY CORRECTLY
     save_history(
         tool_name="insta_post",
-        input_img=filename,   # ✅ now valid
+        input_img=filename,
         input_text=prompt,
         output_text=combined_output,
-        output_img="test.jpg"
+        output_img="test.jpg",
+        user_id=current_user.id
     )
 
     return jsonify({
@@ -500,7 +661,6 @@ Tips:
         "hashtags": hashtags,
         "tips": tips
     })
-
 # ======================================================
 # ✅ Safety Gear Try ON
 # ======================================================
@@ -545,13 +705,23 @@ Give 2–3 short lines.
                 "For safety, use a certified helmet, gloves, and protective clothing. "
                 "Ensure visibility with reflective gear and follow basic safety precautions."
             )
+
+            
+         # Step 1: Check if user is logged in (validate token)
+        current_user, error = get_current_user()
+        if error:
+            return error  # Returns 401 if token is missing/invalid
+
+
            
         save_history(
     tool_name="safety_gear",
     input_text=prompt,
     input_img=filename,
     output_text=advice_text,
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
+
         )
         
         
@@ -597,10 +767,18 @@ def story_image_generater():
             }), 404
         
 
+              
+         # Step 1: Check if user is logged in (validate token)
+        current_user, error = get_current_user()
+        if error:
+            return error  # Returns 401 if token is missing/invalid
+
         save_history(
     tool_name="story_image",
     input_text=prompt,
-    output_img="test.jpg"
+    output_img="test.jpg",
+    user_id=current_user.id
+
 )
 
 
@@ -681,6 +859,13 @@ Keep it beginner-friendly.
                 "• Avoid bending your neck forward for long periods"
             )
 
+
+                 
+         # Step 1: Check if user is logged in (validate token)
+        current_user, error = get_current_user()
+        if error:
+            return error  # Returns 401 if token is missing/invalid
+
         # ---------------------------------
         # ALWAYS SAVE HISTORY ✅
         # ---------------------------------
@@ -688,7 +873,9 @@ Keep it beginner-friendly.
             tool_name="posture_analyzer",
             input_img=filename,
             output_text=suggestions,
-            output_img="test.jpg"
+            output_img="test.jpg",
+            user_id=current_user.id
+
         )
 
         # ---------------------------------
@@ -713,21 +900,23 @@ Keep it beginner-friendly.
         }), 500
 
 
+db.init_app(app)
+
 def init_db():
-    with app.app_context():
+    with app.app_context():   # ✅ REQUIRED
         db.create_all()
-        print(f'Database initialized! Using: {DATABASE_URL}')
+        print("✅ Database tables created")
 
 
-
-def save_history(tool_name, input_text=None, input_img=None,
+def save_history(*,tool_name, user_id,input_text=None, input_img=None,
                  output_text=None, output_img=None):
     history = History(
         tool_name=tool_name,
         input_text=input_text,
         input_img=input_img,
         output_text=output_text,
-        output_img=output_img
+        output_img=output_img,
+        user_id=user_id
     )
     db.session.add(history)
     db.session.commit()

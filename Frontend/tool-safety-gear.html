@@ -217,8 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
     formData.append("prompt", prompt);
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch("http://127.0.0.1:5000/api/safety-gear", {
         method: "POST",
+         headers: { 
+             "Authorization": "Bearer " + token
+          },
         body: formData
       });
 

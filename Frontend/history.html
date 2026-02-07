@@ -265,60 +265,75 @@
     </main>
   </div>
 <script>
-fetch("http://127.0.0.1:5000/api/history")
-  .then(res => res.json())
-  .then(data => {
-    const tbody = document.getElementById("historyTableBody");
-    tbody.innerHTML = "";
+const token = localStorage.getItem("token");
 
-    if (!data.length) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center">No history found</td>
-        </tr>`;
-      return;
-    }
+fetch("http://127.0.0.1:5000/api/history", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json"
+  }
+})
+.then(res => {
+  if (!res.ok) {
+    throw new Error("Unauthorized or failed to fetch history");
+  }
+  return res.json();
+})
+.then(data => {
+  const tbody = document.getElementById("historyTableBody");
+  tbody.innerHTML = "";
 
-    data.forEach(item => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.id}</td>
-          <td>${item.tool_name}</td>
+  if (!data.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center">No history found</td>
+      </tr>`;
+    return;
+  }
 
-          <td>${item.input_text || "—"}</td>
+  data.forEach(item => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.tool_name}</td>
+        <td>${item.input_text || "—"}</td>
 
-          <td>
-            ${
-              item.input_img
-                ? item.input_img.split(",").map(img => `
-                    <img 
-                      src="http://127.0.0.1:5000/generated/${img.trim()}" 
-                      width="60"
-                      class="me-1 mb-1"
-                      onerror="this.style.display='none'">
-                  `).join("")
-                : "—"
-            }
-          </td>
+        <td>
+          ${
+            item.input_img
+              ? item.input_img.split(",").map(img => `
+                  <img 
+                    src="http://127.0.0.1:5000/generated/${img.trim()}" 
+                    width="60"
+                    class="me-1 mb-1"
+                    onerror="this.style.display='none'">
+                `).join("")
+              : "—"
+          }
+        </td>
 
-          <td style="white-space: pre-wrap">
-            ${item.output_text || "—"}
-          </td>
+        <td style="white-space: pre-wrap">
+          ${item.output_text || "—"}
+        </td>
 
-         <td>
-  ${item.output_img
-    ? `<img src="http://127.0.0.1:5000/generated/${item.output_img}"
-            width="80"
-            onerror="this.style.display='none'">`
-    : "—"}
-</td>
-        </tr>
-      `;
-    });
-  })
-  .catch(console.error);
+        <td>
+          ${
+            item.output_img
+              ? `<img src="http://127.0.0.1:5000/generated/${item.output_img}"
+                      width="80"
+                      onerror="this.style.display='none'">`
+              : "—"
+          }
+        </td>
+      </tr>
+    `;
+  });
+})
+.catch(err => {
+  console.error("History error:", err);
+});
 </script>
-
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
