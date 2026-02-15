@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Micro Tools Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        /* Modern UX Style Palette */
+        :root {
+            --bg-deep: #0f0c29;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-glow: #2575fc;
+            --accent-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --text-bright: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f0c29 100%);
+            background-attachment: fixed;
+            color: var(--text-bright);
+            margin: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Premium Topbar --- */
+        .header {
+            background: rgba(15, 12, 41, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h2 { 
+            margin: 0; 
+            font-size: 1.2rem; 
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h2 i { color: #f39c12; }
+
+        .header a {
+            color: var(--text-bright);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .header a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 15px rgba(37, 117, 252, 0.3);
+        }
+
+        .content {
+            padding: 2.5rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Stats Card UX --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+
+        .stat-card h3 { 
+            margin: 0; 
+            color: var(--text-muted); 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        .stat-card p { 
+            margin: 0.75rem 0 0; 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            background: linear-gradient(to bottom right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Table Styling --- */
+        .admin-section {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-section h3 {
+            padding: 1.5rem 2rem;
+            margin: 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            text-align: left;
+            color: var(--text-muted);
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.2);
+        }
+
+        td { 
+            padding: 1.25rem 2rem; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            font-size: 0.95rem;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-role { background: #3b82f6; color: white; }
+        .btn-role:hover { background: #2563eb; transform: scale(1.05); }
+
+        .btn-del { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-del:hover { background: #ef4444; color: white; }
+        
+        /* --- Badges --- */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge-admin { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981; }
+        .badge-user { background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid var(--glass-border); }
+
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .content { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2><i class="bi bi-shield-check"></i> System Admin</h2>
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+
+    <div class="content">
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Active Users</h3>
+                <p id="totalUsers">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total AI Tasks</h3>
+                <p id="totalGens">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Peak Performance Tool</h3>
+                <p id="topTool" style="font-size: 1.5rem; letter-spacing: 0;">-</p>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>User Access Management</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Date</th>
+                            <th>Operations</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody id="userTable"></tbody>
+                </table>
+            </div>
+            <div>
+
+
+<div class="admin-section" style="margin-top: 2rem;">
+    <h3>AI Generation History</h3>
+
+    <div class="table-wrap">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Tool</th>
+                    <th>Input Text</th>
+                    <th>Input Image</th>
+                    <th>Output Text</th>
+                    <th>Output Image</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                <tr>
+                    <td colspan="7" class="text-center">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</div>
+        </div>
+    </div>
+<script>
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+if (!token || !user || !user.is_admin) {
+    alert('Admin access required!');
+    window.location.href = '/';
+}
+
+// ✅ GLOBAL HISTORY STORAGE
+let allHistory = [];
+
+// ✅ SAFE HTML ESCAPE (MOVED TO TOP)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ✅ API HELPER
+async function api(url, method = 'GET', body = null) {
+    const options = {
+        method,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    };
+
+    if (body) options.body = JSON.stringify(body);
+
+    const res = await fetch(url, options);
+
+    if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return null;
+    }
+
+    if (res.status === 403) {
+        alert('Admin access required!');
+        window.location.href = '/';
+        return null;
+    }
+
+    return await res.json();
+}
+
+// ✅ LOAD STATS
+async function loadStats() {
+    const data = await api('/api/admin/stats');
+    if (!data) return;
+
+    document.getElementById('totalUsers').textContent = data.total_users;
+    document.getElementById('totalGens').textContent = data.total_history;
+}
+
+// ✅ LOAD USERS
+async function loadUsers() {
+    const data = await api('/api/admin/users');
+    if (!data) return;
+
+    const tbody = document.getElementById('userTable');
+
+    if (!data.users || data.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No users found</td></tr>';
+        return;
+    }
+
+   tbody.innerHTML = data.users.map((u, index) => `
+    <tr>
+        <td>${index + 1}</td>
+        <td>${escapeHtml(u.username)}</td>
+        <td>${escapeHtml(u.email)}</td>
+        <td>
+            ${u.is_admin
+                ? '<span class="badge bg-danger">Admin</span>'
+                : '<span class="badge bg-secondary">User</span>'}
+        </td>
+        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+        <td>
+            ${u.id === user.id
+                ? '<span class="text-muted">You</span>'
+                : `<button class="btn btn-sm btn-outline-danger"
+                           onclick="deleteUser(${u.id}, '${escapeHtml(u.username)}')">
+                           Delete
+                   </button>`
+            }
+        </td>
+    </tr>
+`).join('');
+}
+
+// ✅ LOAD HISTORY
+function loadHistory() {
+
+    fetch('/api/admin/history', {
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        allHistory = data.history || [];
+
+        const table = document.getElementById('historyTableBody');
+        table.innerHTML = '';
+
+       allHistory.forEach((h, index) => {
+
+            const inputImagesHTML = h.input_imgs && h.input_imgs.length > 0
+                ? h.input_imgs.map(img =>
+                    `<img src="http://127.0.0.1:5000/generated/${img.trim()}"
+                          width="100"
+                          style="margin:4px;border-radius:6px;"
+                          onerror="this.style.display='none'">`
+                  ).join('')
+                : 'N/A';
+
+            const outputImagesHTML = h.output_imgs && h.output_imgs.length > 0
+                ? h.output_imgs.map(img => {
+                    const clean = img.trim().replace(/^\/+/, '');
+                    return `<img src="http://127.0.0.1:5000/generated/${clean}"
+                                width="100"
+                                style="margin:4px;border-radius:6px;"
+                                onerror="this.style.display='none'">`;
+                  }).join('')
+                : 'N/A';
+
+            table.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(h.username)}</td>
+            <td>${escapeHtml(h.tool_name)}</td>
+            <td>${escapeHtml(h.input_text || '')}</td>
+            <td>${inputImagesHTML}</td>
+            <td>${escapeHtml(h.output_text || '')}</td>
+            <td>${outputImagesHTML}</td>
+            <td>${h.created_at}</td>
+        </tr>
+            `;
+        });
+
+    })
+    .catch(err => console.error(err));
+}
+
+// ✅ DELETE USER WITH CORRECT COUNT
+async function deleteUser(userId, username) {
+
+    const userHistoryCount = allHistory.filter(
+        h => h.username === username
+    ).length;
+
+    const message = `Delete user "${username}" and all their history (${userHistoryCount} records)?`;
+
+    if (!confirm(message)) return;
+
+    await api(`/api/admin/users/${userId}`, 'DELETE');
+
+    loadStats();
+    loadUsers();
+    loadHistory();
+}
+
+// ✅ LOGOUT
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+
+// ✅ LOAD EVERYTHING AFTER DEFINITIONS
+loadStats();
+loadUsers();
+loadHistory();
+
+</script>
+</body>
+</html>

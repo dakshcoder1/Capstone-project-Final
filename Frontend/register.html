@@ -6,6 +6,119 @@
     <title>Register - Todo App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+
+/* ===== FORCE DARK THEME ===== */
+body {
+    background: linear-gradient(-45deg, #0f0f1a, #1a1a2e, #141424, #1f1f3a);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+    font-family: 'Segoe UI', sans-serif;
+    color: #ffffff;
+}
+
+@keyframes gradientMove {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* Navbar */
+.navbar {
+    background: rgba(7, 224, 7, 0.85) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Card */
+.card {
+    background: rgba(25, 25, 45, 0.65);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    color: #ffffff;
+}
+
+/* Header */
+.card-header {
+    background: linear-gradient(135deg, #00c853, #00bfa5) !important;
+    border-radius: 20px 20px 0 0 !important;
+    text-align: center;
+}
+
+/* ===== TEXT VISIBILITY FIX ===== */
+
+/* Labels */
+.form-label {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+/* Input */
+.form-control {
+    background: #1e1e35;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Placeholder */
+.form-control::placeholder {
+    color: rgba(255,255,255,0.6) !important;
+}
+
+/* Focus */
+.form-control:focus {
+    background: #23234a;
+    color: #ffffff !important;
+    border-color: #00c853;
+    box-shadow: 0 0 10px rgba(0,200,83,0.6);
+}
+
+/* Autofill Fix */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Button */
+.btn-success {
+    background: linear-gradient(135deg, #00c853, #00bfa5);
+    border: none;
+    font-weight: 600;
+}
+
+/* Bottom Text */
+.card-body p {
+    color: #ffffff !important;
+}
+
+/* Links */
+a {
+    color: #7d7dff;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Alerts */
+.alert-success {
+    background: rgba(0,200,83,0.15);
+    border: 1px solid rgba(0,200,83,0.5);
+    color: #00ff95;
+}
+
+.alert-danger {
+    background: rgba(255,0,60,0.15);
+    border: 1px solid rgba(255,0,60,0.5);
+    color: #ff4d6d;
+}
+
+hr {
+    border-color: #444;
+}
+
+</style>
 <body class="bg-light">
     <nav class="navbar navbar-dark bg-primary">
         <div class="container">

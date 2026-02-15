@@ -6,6 +6,10 @@ import google.generativeai as genai
 from werkzeug.utils import secure_filename
 from auth import hash_password, verify_password, create_token, get_current_user
 from models import db, User, History
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
+from auth import get_admin_user
+
 
 
 load_dotenv()
@@ -119,6 +123,11 @@ def login_page():
 def register_page():
     return send_from_directory(FRONTEND_DIR,'register.html')
 
+
+@app.route('/admin')
+def admin_page():
+    return send_from_directory(FRONTEND_DIR,'admin.html')
+
 @app.route('/<path:filename>')
 def serve_frontend(filename):
     # Serve ANY file from frontend folder
@@ -160,7 +169,9 @@ def get_history():
             "input_img": r.input_img,
             "output_text": r.output_text,
             "output_img": r.output_img,
-            "user_id": r.user_id        }
+            "user_id": r.user_id,
+            "created_at": r.created_at.strftime("%Y-%m-%d %H:%M:%S") if r.created_at else None
+        }
         for r in records
     ])
 
@@ -921,8 +932,102 @@ def save_history(*,tool_name, user_id,input_text=None, input_img=None,
     db.session.add(history)
     db.session.commit()
 
+@app.route('/api/admin/users', methods=['GET'])
+def get_all_users():
+    current_user, error = get_admin_user()
+    if error:
+        return error
+
+    users = User.query.all()
+
+    result = []
+    for user in users:
+        result.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_admin": user.is_admin,
+            "created_at": user.created_at
+        })
+
+    return jsonify({"users": result})
 
 
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    # Step 1: Check if user is admin
+    current_user, error = get_admin_user()
+    if error:
+        return error
+
+    # Step 2: Can't delete yourself
+    if user_id == current_user.id:
+        return jsonify({'error': 'Cannot delete yourself'}), 400
+
+    # Step 3: Find and delete user
+    user = User.query.get_or_404(user_id)
+    History.query.filter_by(user_id=user_id).delete()  # Delete user's todos first
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({'message': f'User {user.username} deleted'})
+
+
+
+
+
+@app.route('/api/admin/stats', methods=['GET'])
+def get_stats():
+    current_user, error = get_admin_user()
+    if error:
+        return error
+
+    total_users = User.query.count()
+    total_history = History.query.count()
+
+    # If you don't have a "completed" field, remove this logic
+    completed_history = 0
+
+    return jsonify({
+        'total_users': total_users,
+        'total_history': total_history,
+        'completed_history': completed_history,
+        'pending_history': total_history - completed_history
+    })
+
+@app.route('/api/admin/history', methods=['GET'])
+def get_all_history():
+    current_user, error = get_admin_user()
+    if error:
+        return error
+
+    histories = History.query.order_by(History.created_at.asc()).all()
+    result = []
+    for item in histories:
+        user = User.query.get(item.user_id)
+        
+        
+        input_imgs = []
+        output_imgs = []
+
+        if item.input_img:
+            input_imgs = [img.strip() for img in item.input_img.split(',') if img.strip()]
+        if item.output_img:
+            output_imgs = [f"/{img.strip()}" for img in item.output_img.split(',') if img.strip()]
+
+        result.append({
+            "id": item.id,
+            "tool_name": item.tool_name,
+            "input_text": item.input_text,
+            "input_imgs": input_imgs,   
+            "output_text": item.output_text,
+            "output_imgs": output_imgs,  
+            "created_at": item.created_at.strftime("%m-%d-%Y %H:%M:%S"),
+            "username": user.username if user else "Unknown"
+        })
+
+    return jsonify({'history': result})
 # ----------------------------
 # RUN SERVER
 # ----------------------------

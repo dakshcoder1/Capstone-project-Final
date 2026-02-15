@@ -10,6 +10,74 @@
   <link rel="stylesheet" href="styles.css" />
 
 </head>
+<style>
+/* ===== FORCE FULL DARK TABLE ===== */
+
+.table-advanced {
+  background: #0f0f1a !important;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Remove Bootstrap default white */
+.table,
+.table tbody,
+.table thead,
+.table tr,
+.table td,
+.table th {
+  background-color: transparent !important;
+}
+
+/* Header */
+.table-advanced thead tr {
+  background: #18182a !important;
+}
+
+.table-advanced thead th {
+  color: #ffffff;
+  border-bottom: 1px solid rgba(209, 17, 17, 0.08);
+  padding: 14px;
+}
+
+/* Body Rows */
+.table-advanced tbody tr {
+  background-color: #141424 !important;
+  transition: 0.3s ease;
+}
+
+.table-advanced tbody tr:nth-child(even) {
+  background-color: #1a1a2e !important;
+}
+
+.table-advanced tbody tr:hover {
+  background-color: #22223b !important;
+}
+
+/* Cells */
+.table-advanced td {
+  color: #dcdcdc;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 12px;
+}
+
+/* Images */
+.table-advanced img {
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+.table-advanced img:hover {
+  transform: scale(1.08);
+}
+
+/* Remove any light striping */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #141424 !important;
+}
+
+</style>
 
 <body>
   <div class="app-shell">
@@ -174,25 +242,26 @@
           <div class="container mt-4">
   <h3 class="mb-3">Tool History</h3>
 
-  <table class="table table-bordered table-striped">
-    <thead class="table-dark">
+<div class="table-wrapper">
+<table class="table table-advanced">  
+    <thead>
       <tr>
-        <th>ID</th>
+        <th>Sr. No</th>
         <th>Tool</th>
         <th>Input Text</th>
         <th>Input Image</th>
         <th>Output Text</th>
         <th>Output Image</th>
+        <th>Date</th>
       </tr>
     </thead>
     <tbody id="historyTableBody">
       <tr>
-        <td colspan="6" class="text-center">Loading...</td>
+        <td colspan="7" class="text-center">Loading...</td>
       </tr>
     </tbody>
   </table>
 </div>
-
         
 
 <div class="history-card">
@@ -287,15 +356,19 @@ fetch("http://127.0.0.1:5000/api/history", {
   if (!data.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center">No history found</td>
+        <td colspan="8" class="text-center">No history found</td>
       </tr>`;
     return;
   }
 
-  data.forEach(item => {
+  data.forEach((item, index) => {
     tbody.innerHTML += `
       <tr>
-        <td>${item.id}</td>
+        <!-- ✅ Sr. No -->
+        <td>${index + 1}</td>
+
+       
+
         <td>${item.tool_name}</td>
         <td>${item.input_text || "—"}</td>
 
@@ -326,6 +399,9 @@ fetch("http://127.0.0.1:5000/api/history", {
               : "—"
           }
         </td>
+
+        <!-- ✅ Date -->
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "—"}</td>
       </tr>
     `;
   });

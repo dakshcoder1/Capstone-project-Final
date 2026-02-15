@@ -56,8 +56,6 @@ def decode_token(token):
 #   - (None, error_response) if token is invalid
 
 def get_current_user():
-    
-    
     """
     Validates JWT token and returns current user.
 
@@ -68,29 +66,38 @@ def get_current_user():
     4. Returns (user, None) or (None, error_response)
     """
 
-    # Step 1: Check if Authorization header exists
-    if 'Authorization' not in request.headers:
+    # ✅ CHANGE 1: Use request.headers.get() (safer than direct indexing)
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
         return None, (jsonify({'error': 'Token is missing'}), 401)
+
     print("========================================")
     print("Authorization header found.")
     print(request.headers)
-    print(request.headers['Authorization'])
+    print(auth_header)
     print("\n\n")
+
     # Step 2: Extract token from "Bearer <token>"
- 
-    auth_header = request.headers['Authorization']
     if not auth_header.startswith('Bearer '):
         return None, (jsonify({'error': 'Invalid token format'}), 401)
 
     print("Split with (' ')")
     print(auth_header.split(' '))
     print("\n\n")
-    token = auth_header.split(' ')[1]
+
+    # ✅ CHANGE 2: safer split (prevents index error)
+    parts = auth_header.split(' ')
+    if len(parts) != 2:
+        return None, (jsonify({'error': 'Invalid token format'}), 401)
+
+    token = parts[1]
 
     # Step 3: Decode and validate token
     data = decode_token(token)
+
     print("Decoded token data:")
     print(data)
+
     if not data:
         return None, (jsonify({'error': 'Token is invalid or expired'}), 401)
 
@@ -99,5 +106,26 @@ def get_current_user():
     if not current_user:
         return None, (jsonify({'error': 'User not found'}), 401)
 
-    # Success! Return user
+    # ✅ SUCCESS: Always return EXACTLY 2 values
+    return current_user, None
+
+# =============================================================================
+# GET ADMIN USER (Helper Function)
+# =============================================================================
+# Same as get_current_user but also checks if user is admin
+
+def get_admin_user():
+    """
+    Validates JWT token and returns current user IF they are admin.
+    Returns: (user, None) on success, (None, error_response) on failure
+    """
+    # First, get the current user
+    current_user, error = get_current_user()
+    if error:
+        return None, error
+
+    # Then check if they are admin
+    if not current_user.is_admin:
+        return None, (jsonify({'error': 'Admin access required'}), 403)
+
     return current_user, None

@@ -359,3 +359,18 @@ body{
   --c-prompt: #1115e3;   /* Prompt Enhancer – AI cyan */
 
 }
+
+.btn-admin {
+    background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
