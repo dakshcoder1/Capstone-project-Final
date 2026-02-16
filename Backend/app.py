@@ -360,8 +360,7 @@ def image_to_style():
         "message": "Image styled successfully (mock)",
         "prompt": prompt,
         "style": style,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg"
-    })
+"image_url": get_full_url("test.jpg")    })
 
 
 # ======================================================
@@ -422,8 +421,7 @@ def specs_tryon():
         "success": True,
         "message": "Specs try-on successful (mock)",
         "prompt": prompt,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg"
-    })
+"image_url": get_full_url("test.jpg")    })
 
 
 # ======================================================
@@ -488,8 +486,7 @@ def haircut_preview():
         "success": True,
         "message": "Haircut preview generated (mock)",
         "prompt": prompt,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg"
-    })
+"image_url": get_full_url("test.jpg")    })
 
 
 # ======================================================
@@ -543,8 +540,7 @@ def insta_story_template():
         "message": "Insta story generated (mock)",
         "overlay_text": overlay_text,
         "template": template,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg"
-    })
+"image_url": get_full_url("test.jpg")    })
 
 
 # ======================================================
@@ -681,7 +677,7 @@ Tips:
 
     return jsonify({
         "success": True,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg",
+        "image_url": get_full_url("test.jpg"),
         "caption": caption,
         "hashtags": hashtags,
         "tips": tips
@@ -754,7 +750,7 @@ Give 2–3 short lines.
         return jsonify({
             "success": True,
             "advice": advice_text,
-            "image_url": "http://127.0.0.1:5000/generated/test.jpg"
+"image_url": get_full_url("test.jpg")
         })
 
     except Exception as e:
@@ -810,7 +806,7 @@ def story_image_generater():
         return jsonify({
             "success": True,
             "prompt": prompt,
-            "image_url": "http://127.0.0.1:5000/generated/test.jpg"
+"image_url": get_full_url("test.jpg")
         })
 
     except Exception as e:
@@ -908,7 +904,7 @@ Keep it beginner-friendly.
         # ---------------------------------
         return jsonify({
             "success": True,
-            "corrected_image_url": "http://127.0.0.1:5000/generated/test.jpg",
+"image_url": get_full_url("test.jpg"),
             "suggestions": suggestions,
             "scores": {
                 "spine": 80,
@@ -1059,10 +1055,10 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     print("✅ Database tables verified/created")
-
 if __name__ == "__main__":
     app.run(
-        host="127.0.0.1",
-        port=5000, # Note: You can keep this 5000 or 8000, just match Nginx
+        # Changing this to "0.0.0.0" opens the door for outside connections
+        host="0.0.0.0", 
+        port=5000, 
         debug=os.getenv("FLASK_DEBUG", "True") == "True"
     )

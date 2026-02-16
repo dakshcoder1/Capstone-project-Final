@@ -374,7 +374,7 @@ function loadHistory() {
 
             const inputImagesHTML = h.input_imgs && h.input_imgs.length > 0
                 ? h.input_imgs.map(img =>
-                    `<img src="http://127.0.0.1:5000/generated/${img.trim()}"
+                    `<img src="/generated/${img.trim()}"
                           width="100"
                           style="margin:4px;border-radius:6px;"
                           onerror="this.style.display='none'">`
@@ -384,7 +384,7 @@ function loadHistory() {
             const outputImagesHTML = h.output_imgs && h.output_imgs.length > 0
                 ? h.output_imgs.map(img => {
                     const clean = img.trim().replace(/^\/+/, '');
-                    return `<img src="http://127.0.0.1:5000/generated/${clean}"
+                    return `<img src="/generated/${clean}"
                                 width="100"
                                 style="margin:4px;border-radius:6px;"
                                 onerror="this.style.display='none'">`;

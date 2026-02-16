@@ -336,7 +336,7 @@
 <script>
 const token = localStorage.getItem("token");
 
-fetch("http://127.0.0.1:5000/api/history", {
+fetch("/api/history", {
   method: "GET",
   headers: {
     "Authorization": `Bearer ${token}`,

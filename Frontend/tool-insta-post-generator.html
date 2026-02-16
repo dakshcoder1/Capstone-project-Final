@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:5000/api/insta-post-generator", {
+      const res = await fetch("/api/insta-post-generator", {
         method: "POST",
         headers: { 
              "Authorization": "Bearer " + token

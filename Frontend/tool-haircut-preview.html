@@ -241,7 +241,7 @@
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:5000/api/haircut-preview", {
+      const res = await fetch("/api/haircut-preview", {
         method: "POST",
          headers: { 
              "Authorization": "Bearer " + token
