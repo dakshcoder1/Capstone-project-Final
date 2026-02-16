@@ -96,9 +96,22 @@ print(BASE_DIR)
 GENERATED_FOLDER = os.path.join(BASE_DIR, "generated")
 print("==============================================a")
 
+# --- Add this right below your PATH CONFIG section ---
 
+def get_full_url(filename):
+    """Detects if running on localhost or server and builds the full image link"""
+    # request.host_url gets 'http://127.0.0.1:5000' or 'http://your-server-ip:5000'
+    base_url = request.host_url.rstrip('/')
+    return f"{base_url}/generated/{filename}"
 # Ensure folder exists
 os.makedirs(GENERATED_FOLDER, exist_ok=True)
+
+
+
+
+
+
+
 
 # ----------------------------
 # HEALTH CHECK
@@ -275,14 +288,15 @@ def prompt_to_image():
         tool_name="prompt_to_image",
         input_text=prompt,
         output_img="test.jpg",
-        user_id=current_user.id    )
+        user_id=current_user.id
+    )
 
     # Step 4: Send response
     return jsonify({
         "success": True,
         "prompt": prompt,
         "style": style,
-        "image_url": "http://127.0.0.1:5000/generated/test.jpg"
+        "image_url": get_full_url("test.jpg")
     })
 
 
