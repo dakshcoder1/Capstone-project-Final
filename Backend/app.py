@@ -106,7 +106,7 @@ os.makedirs(GENERATED_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return send_from_directory(FRONTEND_DIR, 'home.html')
+    return send_from_directory(FRONTEND_DIR, 'Home.html')
 print("ddd===============================")
 
 
