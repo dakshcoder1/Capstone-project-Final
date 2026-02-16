@@ -915,6 +915,7 @@ Keep it beginner-friendly.
 
 def init_db():
     with app.app_context():   # ✅ REQUIRED
+        from models import User, History
         db.create_all()
         print("✅ Database tables created")
 
