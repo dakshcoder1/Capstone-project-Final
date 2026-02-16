@@ -15,7 +15,7 @@ from auth import get_admin_user
 load_dotenv()
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'frontend'))
+FRONTEND_DIR = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'Frontend'))
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY','fallback-secret-key') #Get from env or use fallback
@@ -911,7 +911,7 @@ Keep it beginner-friendly.
         }), 500
 
 
-db.init_app(app)
+# db.init_app(app)
 
 def init_db():
     with app.app_context():   # ✅ REQUIRED
@@ -1031,9 +1031,23 @@ def get_all_history():
 # ----------------------------
 # RUN SERVER
 # ----------------------------
-if __name__ == "__main__":
-    init_db()  # ✅ create tables before server starts
+# if __name__ == "__main__":
+#     init_db()  # ✅ create tables before server starts
 
+#     app.run(
+#         debug=os.getenv("FLASK_DEBUG", "True") == "True"
+#     )
+
+db.init_app(app)
+
+# MOVE THIS OUTSIDE THE __main__ BLOCK
+with app.app_context():
+    db.create_all()
+    print("✅ Database tables verified/created")
+
+if __name__ == "__main__":
     app.run(
+        host="127.0.0.1",
+        port=5000, # Note: You can keep this 5000 or 8000, just match Nginx
         debug=os.getenv("FLASK_DEBUG", "True") == "True"
     )
