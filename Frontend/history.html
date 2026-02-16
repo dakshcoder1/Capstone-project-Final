@@ -377,7 +377,7 @@ fetch("/api/history", {
             item.input_img
               ? item.input_img.split(",").map(img => `
                   <img 
-                    src="http://127.0.0.1:5000/generated/${img.trim()}" 
+                    src="/generated/${img.trim()}" 
                     width="60"
                     class="me-1 mb-1"
                     onerror="this.style.display='none'">
@@ -393,7 +393,7 @@ fetch("/api/history", {
         <td>
           ${
             item.output_img
-              ? `<img src="http://127.0.0.1:5000/generated/${item.output_img}"
+              ? `<img src="/generated/${item.output_img}"
                       width="80"
                       onerror="this.style.display='none'">`
               : "—"

@@ -904,7 +904,7 @@ Keep it beginner-friendly.
         # ---------------------------------
         return jsonify({
             "success": True,
-"image_url": get_full_url("test.jpg"),
+"corrected_image_url": get_full_url("test.jpg"),
             "suggestions": suggestions,
             "scores": {
                 "spine": 80,
