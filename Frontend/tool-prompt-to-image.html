@@ -235,7 +235,7 @@
     const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://127.0.0.1:5000/api/prompt-to-image",
+        "/api/prompt-to-image",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" ,
