@@ -1220,6 +1220,9 @@ def get_all_history():
         })
 
     return jsonify({'history': result})
+
+
+
 # ----------------------------
 # RUN SERVER
 # ----------------------------

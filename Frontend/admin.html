@@ -381,13 +381,24 @@ function loadHistory() {
                   ).join('')
                 : 'N/A';
 
+            // ✅ UPDATED PART (ComfyUI Support Added)
             const outputImagesHTML = h.output_imgs && h.output_imgs.length > 0
                 ? h.output_imgs.map(img => {
+
                     const clean = img.trim().replace(/^\/+/, '');
-                    return `<img src="/generated/${clean}"
+
+                    const isComfy = clean.includes("ComfyUI") || h.tool_name === "prompt_to_image";
+
+                    const folder = isComfy ? "/comfy_output/" : "/generated/";
+
+                    const finalSrc = clean.startsWith("http")
+                        ? clean
+                        : folder + clean;
+
+                    return `<img src="${finalSrc}"
                                 width="100"
                                 style="margin:4px;border-radius:6px;"
-                                onerror="this.style.display='none'">`;
+                                onerror="this.src='https://placehold.co/100?text=Error'">`;
                   }).join('')
                 : 'N/A';
 
@@ -439,5 +450,3 @@ loadUsers();
 loadHistory();
 
 </script>
-</body>
-</html>
