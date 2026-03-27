@@ -177,7 +177,7 @@
 
 
 
-         <div class="preview-box mt-4">
+        <div class="preview-box mt-4">
   <div class="preview-thumb resizable" id="thumb">
     <img id="previewImg" alt="preview">
 
@@ -188,16 +188,26 @@
       </div>
     </div>
   </div>
+  <div class="text-center mt-3">
+  <button id="downloadBtn" class="btn btn-success" style="display:none;">
+    <i class="bi bi-download me-1"></i> Download Image
+  </button>
+</div>
 </div>
 
-                </div>
-              </div>
-              <div class="hint mt-2">
-                Show final haircut result in this panel after backend integration.
-              </div>
-            </div>
 
-          </form>
+
+</div>
+
+</div>
+
+<div class="hint mt-2">
+  Show final haircut result in this panel after backend integration.
+</div>
+
+</div>
+
+</form>
         </div>
       </div>
     </main>
@@ -215,6 +225,8 @@
 
   const clearBtn = document.querySelector("button[type='reset']");
   const copyBtn = document.getElementById("copyBtn");
+  let generatedImageUrl = "";
+
 
   // ===============================
   // COPY PROMPT
@@ -256,10 +268,16 @@
         return;
       }
 
-      // ✅ SHOW ONLY BACKEND IMAGE
-      previewImg.src = data.image_url + "?v=" + Date.now();
-      previewImg.style.display = "block";
-      placeholder.style.display = "none";
+      
+      // ✅ SHOW BACKEND IMAGE
+     generatedImageUrl = data.image_url; // store image URL
+
+previewImg.src = data.image_url + "?t=" + Date.now();
+previewImg.style.display = "block";
+placeholder.style.display = "none";
+
+// show download button
+document.getElementById("downloadBtn").style.display = "inline-block";
 
     } catch (err) {
       console.error(err);
@@ -285,8 +303,42 @@
     sampleInput.type = "text";
     sampleInput.type = "file";
 
+     generatedImageUrl = "";
+document.getElementById("downloadBtn").style.display = "none";
+
+
     console.log("✔ Haircut preview cleared");
   });
+
+  // =============================
+// DOWNLOAD BUTTON
+// =============================
+document.getElementById("downloadBtn").addEventListener("click", async () => {
+  if (!generatedImageUrl) {
+    alert("No image available");
+    return;
+  }
+
+  try {
+    const response = await fetch(generatedImageUrl);
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ai-image-" + Date.now() + ".jpg";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error(error);
+    alert("Download failed");
+  }
+});
 </script>
 
 

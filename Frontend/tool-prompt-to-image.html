@@ -199,12 +199,25 @@
   </div>
 </div>
 
+<div class="text-center mt-3">
+  <button id="downloadBtn" class="btn btn-success" style="display:none;">
+    <i class="bi bi-download me-1"></i> Download Image
+  </button>
+</div>
+      </div>
+
+
                 </div>
               </div>
             </div>
 
           </form>
+         
+      </div>
         </div>
+        </div>
+
+
       </div>
 
     </main>
@@ -215,6 +228,8 @@
   const promptInput = document.getElementById("promptText");
   const previewImg = document.getElementById("previewImg");
   const placeholder = document.getElementById("placeholder");
+  let generatedImageUrl = "";
+
 
   // =============================
   // SUBMIT (GENERATE IMAGE)
@@ -255,10 +270,14 @@
       console.log("image_url")
 
       // ✅ SHOW BACKEND IMAGE
-      previewImg.src = data.image_url + "?t=" + Date.now();
-      previewImg.style.display = "block";
-      placeholder.style.display = "none";
+     generatedImageUrl = data.image_url; // store image URL
 
+previewImg.src = data.image_url + "?t=" + Date.now();
+previewImg.style.display = "block";
+placeholder.style.display = "none";
+
+// show download button
+document.getElementById("downloadBtn").style.display = "inline-block";
 
     } catch (err) {
       console.error(err);
@@ -277,8 +296,43 @@
     // Show placeholder again
     placeholder.style.display = "block";
 
+    generatedImageUrl = "";
+document.getElementById("downloadBtn").style.display = "none";
+
     console.log("✔ Prompt → Image cleared");
   });
+
+
+  // =============================
+// DOWNLOAD BUTTON
+// =============================
+document.getElementById("downloadBtn").addEventListener("click", async () => {
+  if (!generatedImageUrl) {
+    alert("No image available");
+    return;
+  }
+
+  try {
+    const response = await fetch(generatedImageUrl);
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ai-image-" + Date.now() + ".jpg";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error(error);
+    alert("Download failed");
+  }
+});
+
 </script>
 
 

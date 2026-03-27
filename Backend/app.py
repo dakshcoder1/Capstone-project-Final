@@ -9,6 +9,10 @@ from models import db, User, History
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from auth import get_admin_user
+import json
+import random
+import requests
+import time
 
 
 
@@ -17,6 +21,17 @@ load_dotenv()
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'Frontend'))
 
+
+def load_workflow(workflow_name):
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        workflow_path = os.path.join(base_dir, "workflows", f"{workflow_name}.json")
+
+        with open(workflow_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Workflow load error: {e}")
+        return None
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY','fallback-secret-key') #Get from env or use fallback
 CORS(app)
@@ -260,44 +275,170 @@ def api_login():
 @app.route("/generated/<path:filename>")
 def serve_generated(filename):
     return send_from_directory(GENERATED_FOLDER, filename)
+## I have formatted this specifically for your StabilityMatrix setup
+COMFY_OUTPUT_PATH = "D:/StabilityMatrix-win-x64/Data/Packages/ComfyUI/output"
 
-# ======================================================
-# EXISTING: PROMPT → IMAGE (KEEP AS IS)
-# ======================================================
+@app.route('/comfy_output/<filename>')
+def serve_comfy_image(filename):
+    # This replaces the need for test.jpg by serving directly from ComfyUI
+    return send_from_directory(COMFY_OUTPUT_PATH, filename)
+
 @app.route("/api/prompt-to-image", methods=["POST"])
 def prompt_to_image():
-
     data = request.json
-    print("=======================ooo=========================")
-    prompt = data.get("prompt")
+    prompt = data.get("prompt", "")
     style = data.get("style", "clean")
 
-    image_path = os.path.join(GENERATED_FOLDER, "test.jpg")
+    STYLE_MODIFIERS = {
+        "clean": ", minimal design, clean background, high quality",
+        "cinematic": ", dramatic lighting, cinematic atmosphere, masterpiece",
+        "anime": ", anime style, vibrant colors, cel shaded",
+        "photoreal": ", photorealistic, highly detailed, raw photo",
+        "illustration": ", digital art, artistic illustration, detailed textures"
+    }
 
-    if not os.path.exists(image_path):
-        return jsonify({"error": "test.jpg not found"}), 404
+    suffix = STYLE_MODIFIERS.get(style, "")
 
-    # Step 1: Check if user is logged in (validate token)
+    # ---- Smart Prompt Structuring ----
+    base_prompt = prompt.strip().lower()
+
+    if len(base_prompt.split()) <= 2:
+        engineered_prompt = (
+            f"a single {base_prompt}, calm expression, mouth closed, "
+            f"centered composition, symmetrical face, natural lighting, "
+            f"realistic wildlife photography, ultra detailed"
+        )
+    else:
+        engineered_prompt = (
+            f"{prompt}{suffix}, realistic, detailed, centered composition"
+        )
+
+    try:
+        workflow = load_workflow("text_to_image")
+
+        if not workflow:
+            return jsonify({"error": "Workflow configuration file missing"}), 500
+
+        # ✅ Inject positive prompt
+        workflow["6"]["inputs"]["text"] = engineered_prompt
+
+        # ✅ Strong negative prompt (IMPORTANT FIX)
+        workflow["7"]["inputs"]["text"] = (
+            "aggressive, roaring, open mouth, extra head, duplicate face, "
+            "two faces, mutated, deformed, bad anatomy, distorted, "
+            "horror, scary, creepy, worst quality, low quality"
+        )
+
+        # ✅ Stable Sampler Settings
+        workflow["3"]["inputs"]["seed"] = random.randint(1, 10**15)
+        workflow["3"]["inputs"]["steps"] = 32
+        workflow["3"]["inputs"]["cfg"] = 6.5
+        workflow["3"]["inputs"]["sampler_name"] = "dpmpp_2m_sde"
+        workflow["3"]["inputs"]["scheduler"] = "karras"
+
+        # Optional resolution control
+        workflow["5"]["inputs"]["width"] = 512
+        workflow["5"]["inputs"]["height"] = 512
+
+        response = requests.post(
+            "http://127.0.0.1:8188/prompt",
+            json={"prompt": workflow}
+        )
+
+        if response.status_code != 200:
+            return jsonify({"error": "ComfyUI rejected workflow"}), 500
+
+        response_data = response.json()
+        prompt_id = response_data.get("prompt_id")
+
+        if not prompt_id:
+            return jsonify({"error": "Invalid response from ComfyUI"}), 500
+
+        output_filename = ""
+
+        for _ in range(30):
+            history_res = requests.get(
+                f"http://127.0.0.1:8188/history/{prompt_id}"
+            )
+
+            if history_res.status_code != 200:
+                time.sleep(1)
+                continue
+
+            history_json = history_res.json()
+
+            if prompt_id in history_json:
+                outputs = history_json[prompt_id].get("outputs", {})
+
+                if "9" in outputs:
+                    images = outputs["9"].get("images", [])
+                    if images:
+                        output_filename = images[0].get("filename")
+                        break
+
+            time.sleep(1)
+
+        if not output_filename:
+            return jsonify({"error": "Generation timed out"}), 504
+
+    except Exception as e:
+        print(f"!!! ERROR DETECTED: {e}")
+        return jsonify({"error": "ComfyUI processing error"}), 500
+
     current_user, error = get_current_user()
     if error:
-        return error  # Returns 401 if token is missing/invalid
+        return error
 
-    
-    # Step 3: Save history
     save_history(
         tool_name="prompt_to_image",
         input_text=prompt,
-        output_img="test.jpg",
+        output_img=output_filename,
         user_id=current_user.id
     )
 
-    # Step 4: Send response
     return jsonify({
         "success": True,
-        "prompt": prompt,
+        "prompt": engineered_prompt,
         "style": style,
-        "image_url": get_full_url("test.jpg")
+        "image_url": f"http://127.0.0.1:5000/comfy_output/{output_filename}"
     })
+# ======================================================
+# EXISTING: PROMPT → IMAGE (KEEP AS IS)
+# ======================================================
+# @app.route("/api/prompt-to-image", methods=["POST"])
+# def prompt_to_image():
+
+#     data = request.json
+#     print("=======================ooo=========================")
+#     prompt = data.get("prompt")
+#     style = data.get("style", "clean")
+
+#     image_path = os.path.join(GENERATED_FOLDER, "test.jpg")
+
+#     if not os.path.exists(image_path):
+#         return jsonify({"error": "test.jpg not found"}), 404
+
+#     # Step 1: Check if user is logged in (validate token)
+#     current_user, error = get_current_user()
+#     if error:
+#         return error  # Returns 401 if token is missing/invalid
+
+    
+#     # Step 3: Save history
+#     save_history(
+#         tool_name="prompt_to_image",
+#         input_text=prompt,
+#         output_img="test.jpg",
+#         user_id=current_user.id
+#     )
+
+#     # Step 4: Send response
+#     return jsonify({
+#         "success": True,
+#         "prompt": prompt,
+#         "style": style,
+#         "image_url": get_full_url("test.jpg")
+#     })
 
 
 
@@ -540,7 +681,7 @@ def insta_story_template():
         "message": "Insta story generated (mock)",
         "overlay_text": overlay_text,
         "template": template,
-"image_url": get_full_url("test.jpg")    })
+        "image_url": get_full_url("test.jpg")    })
 
 
 # ======================================================
@@ -639,6 +780,9 @@ def insta_post_generator():
     hashtags = ""
     tips = "💡 Engage with your audience by asking a question."
 
+    # ============================
+    # DEFAULT LOGIC (UNCHANGED)
+    # ============================
     if has_image and not has_text:
         caption = "A peaceful moment captured to inspire calm and clarity."
         hashtags = "#VisualStory #Aesthetic #InstaPost"
@@ -655,6 +799,43 @@ def insta_post_generator():
         hashtags = "#GanpatiBappa #Faith #InnerPeace"
         tips = "📍 Location-based hashtags help reach more people"
 
+    # ============================
+    # GEMINI GENERATION (NEW)
+    # ============================
+    try:
+        instruction = f"""
+You are an Instagram content expert.
+
+Generate:
+1. Caption
+2. Hashtags
+3. Posting tips
+
+Based on this input:
+{prompt if prompt else "General Instagram post"}
+
+Give short and clean output.
+"""
+
+        response = prompt_model.generate_content(instruction)
+        ai_text = response.text.strip()
+
+        # Try parsing Gemini output (simple split)
+        if ai_text:
+            parts = ai_text.split("\n")
+
+            if len(parts) >= 3:
+                caption = parts[0]
+                hashtags = parts[1]
+                tips = parts[2]
+
+    except Exception as gemini_error:
+        print("⚠ Gemini failed, using default content")
+        # ❌ DO NOTHING → your default stays
+
+    # ============================
+    # SAVE HISTORY
+    # ============================
     combined_output = f"""
 Caption:
 {caption}
